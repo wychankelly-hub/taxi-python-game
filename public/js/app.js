@@ -133,7 +133,7 @@
         nick ? el('button', { type: 'button', class: 'pxbtn', onclick: () => { this.editNick = false; this.showHome(); } }, '取消') : null);
       return el('section', { class: 'card px-frame nick-card' },
         el('h2', null, nick ? '改花名' : '輸入你的花名'),
-        el('p', { class: 'small' }, '最多 10 個字，同學及老師會見到你的花名；唔好用全名或電話號碼。'),
+        el('p', { class: 'small' }, '最多 10 個字，只會喺遊戲入面顯示（老師見到嘅係學生名單上嘅姓名）。'),
         form, err);
     }
 
