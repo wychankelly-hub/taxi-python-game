@@ -17,11 +17,19 @@
 - `public/assets/bg/`：場景背景：首頁、第一章車尾箱、第二章的士站（夜）、第三章的士站（黃昏）、第四章維港地圖。
 - `docs/screenshots/`：版面參考（只參考版面及像素風格）。
 
+## 發佈
+
+- GitHub Pages（`.github/workflows/pages.yml`）：每次推送到 `main`，先跑 `npm test`，全部通過才發佈 `public/`；測試失敗不會發佈。
+- 第一次要在 repository **Settings → Pages → Source** 揀「GitHub Actions」。
+- 遊戲：https://wychankelly-hub.github.io/taxi-python-game/
+- 老師控制台：https://wychankelly-hub.github.io/taxi-python-game/teacher.html
+- Google 登入及成績記錄的設定：`docs/設定教學.md`
+
 ## 資料夾
 
 ```
 public/
-  index.html              Render 發佈的頁面
+  index.html              遊戲頁面（GitHub Pages 發佈 public/ 資料夾）
   css/base.css            色彩、字型、像素外框、按鈕
   css/pixel.css           狀態列、對白框、主場景、咪錶、程式區、操作面板、彈出視窗
   assets/                 美術素材（普通 + @2x）；bg/ 場景背景
