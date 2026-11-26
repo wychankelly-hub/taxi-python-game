@@ -73,12 +73,8 @@
       const face = el('div', { class: 'portrait' }, TSD.sprite(TSD.portrait('發哥', 'happy'), 'face'));
       const comms = el('section', { class: 'comms' },
         el('div', { class: 'face-wrap' }, face, el('span', { class: 'who' }, '發哥')),
-        el('div', { class: 'speech' }, named ? `你好，${prof.name}！${nick ? '今晚開工喇！' : '揀個花名先，我教你揸的士！'}`
-          : nick ? `${nick}，今晚開工喇！揀一更啦。` : '新嚟嘅？揀個花名先，我教你揸的士！'));
-      const chips = el('div', { class: 'chips' }, TSD.NICKS.map(n => el('button', {
-        type: 'button', class: 'chip' + (n === nick ? ' on' : ''), 'aria-pressed': n === nick ? 'true' : 'false',
-        onclick: () => { TSD.setNick(n); this.showHome(); },
-      }, n)));
+        el('div', { class: 'speech' }, named ? `你好，${prof.name}！${nick ? '今晚開工喇！' : '輸入個花名先，我教你揸的士！'}`
+          : nick ? `${nick}，今晚開工喇！揀一更啦。` : '新嚟嘅？輸入個花名先，我教你揸的士！'));
       const p = Store.load();
       const shifts = el('div', { class: 'list' }, SHIFTS.map(s => {
         const ch = this.chapter(s.chapter);
@@ -100,9 +96,45 @@
       this.root.replaceChildren(
         this.statusBar('的士佬日記'),
         hero, comms, this.loginCard(),
-        el('section', { class: 'card px-frame' }, el('h2', null, nick ? `花名：${nick}（可以轉）` : '揀一個花名'), chips),
+        this.nickCard(nick, named ? prof.name : ''),
         el('section', { class: 'card px-frame' }, el('h2', null, '今個星期的更份'),
-          nick ? null : el('p', { class: 'need' }, '↑ 先揀花名，先可以開工。'), shifts));
+          nick ? null : el('p', { class: 'need' }, '↑ 先輸入花名，先可以開工。'), shifts));
+      if (!nick || this.editNick) {
+        const inp = this.root.querySelector('#nick-input');
+        if (inp && this.editNick) { inp.focus(); inp.select(); }
+      }
+    }
+
+    /* ---------- 花名：學生自己輸入（全遊戲唯一需要打字的地方） ---------- */
+    nickCard(nick, suggest) {
+      if (nick && !this.editNick) {
+        return el('section', { class: 'card px-frame nick-card' },
+          el('div', { class: 'nick-row' },
+            el('h2', null, `花名：${nick}`),
+            el('button', { type: 'button', class: 'pxbtn', onclick: () => { this.editNick = true; this.showHome(); } }, '改名')));
+      }
+      const err = el('p', { class: 'need', 'aria-live': 'polite' });
+      const inp = el('input', {
+        id: 'nick-input', type: 'text', class: 'nick-input', value: nick || suggest || '',
+        maxlength: '10', autocomplete: 'off', autocorrect: 'off', autocapitalize: 'off', spellcheck: 'false',
+        enterkeyhint: 'done', placeholder: '例如：車神', 'aria-label': '你的花名（最多 10 個字）',
+      });
+      const form = el('form', { class: 'nick-form', onsubmit: e => {
+        e.preventDefault();
+        const v = TSD.cleanNick(inp.value);
+        if (!v) { err.textContent = '請輸入 1 至 10 個字的花名。'; inp.focus(); return; }
+        TSD.setNick(v);
+        this.editNick = false;
+        inp.blur();
+        this.showHome();
+      } },
+        inp,
+        el('button', { type: 'submit', class: 'pxbtn primary' }, '確定'),
+        nick ? el('button', { type: 'button', class: 'pxbtn', onclick: () => { this.editNick = false; this.showHome(); } }, '取消') : null);
+      return el('section', { class: 'card px-frame nick-card' },
+        el('h2', null, nick ? '改花名' : '輸入你的花名'),
+        el('p', { class: 'small' }, '最多 10 個字，同學及老師會見到你的花名；唔好用全名或電話號碼。'),
+        form, err);
     }
 
     /* ---------- Google 登入（第 6 步） ---------- */

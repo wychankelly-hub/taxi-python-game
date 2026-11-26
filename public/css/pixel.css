@@ -532,3 +532,16 @@ span.coin { display: inline-block; border-radius: 50%; background: var(--gold); 
 
 .login-card .gis-btn { min-height: 44px; }
 .login-card a.pxbtn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+
+/* 花名：學生自己輸入 */
+.nick-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.nick-form { display: flex; gap: 8px; }
+.nick-input {
+  flex: 1; min-width: 0; min-height: 48px; padding: 0 12px; border: 3px solid var(--edge);
+  background: var(--cream); color: var(--ink); font: 700 18px var(--font);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.12); border-radius: 0; -webkit-appearance: none; appearance: none;
+  -webkit-user-select: text; user-select: text;
+}
+.nick-input:focus { outline: 3px solid var(--gold); outline-offset: 1px; }
+.nick-input::placeholder { color: #9a8f78; }
+.nick-card .need:empty { display: none; }

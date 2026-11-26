@@ -171,7 +171,11 @@
   TSD.shiftName = ch => `第${TSD.CN[ch.chapter - 1]}更　${ch.title}（${ch.topic.replace(/ \(.*\)/, '')}）`;
 
   /* ---------- 花名（存在手機） ---------- */
-  TSD.NICKS = ['新丁', '車神', '夜更王', '阿飛', '紅的仔', '快手', '穩陣佬', '識路王'];
+  /** 整理學生輸入的花名：去掉前後空格及控制字元，連續空格變一個，最多 10 個字；空白傳回 '' */
+  TSD.cleanNick = v => {
+    const t = String(v || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim();
+    return Array.from(t).slice(0, 10).join('');
+  };
   TSD.getNick = () => { try { return localStorage.getItem('tsd:nick'); } catch (e) { return null; } };
   TSD.setNick = n => { try { localStorage.setItem('tsd:nick', n); } catch (e) { /* 照玩 */ } };
 
