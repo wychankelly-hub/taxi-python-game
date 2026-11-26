@@ -78,7 +78,7 @@
   }
   function students() {
     return state.data.roster.filter(s => !state.cls || String(s['班別']) === state.cls)
-      .sort((a, b) => String(a['班別']).localeCompare(String(b['班別'])) || a['班號'] - b['班號']);
+      .sort((a, b) => String(a['班別']).localeCompare(String(b['班別'])) || ((+a['班號'] || 999) - (+b['班號'] || 999)) || String(a['姓名']).localeCompare(String(b['姓名'])));
   }
   function bestStars(email) {
     const best = {}, quiz = {};

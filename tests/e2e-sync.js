@@ -37,7 +37,7 @@ function makeEnv(tokens, props) {
   return env;
 }
 const exp = String(Math.floor(Date.now() / 1000) + 3600);
-const tok = e => ({ aud: CLIENT_ID, iss: 'accounts.google.com', email: e, email_verified: true, exp });
+const tok = e => ({ aud: CLIENT_ID, iss: 'accounts.google.com', email: e, email_verified: true, exp, name: e.startsWith('who') ? '何同學' : undefined });
 const env = makeEnv({ s1: tok('s1001@school.example'), t1: tok('teacher@school.example'), x9: tok('who@school.example') }, { CLIENT_ID, SESSION_SECRET: 'k'.repeat(48) });
 env.setupSheets();
 env.sheets['學生名單'].data.push(['s1001@school.example', '中五', 1, '陳大文'], ['s1002@school.example', '中五', 2, '李小明']);
@@ -129,7 +129,8 @@ const fakeGis = who => `window.google = { accounts: { id: {
   const s3 = await (await b.newContext({ ...devices['iPhone 13'] })).newPage();
   await s3.context().route('https://accounts.google.com/gsi/client', r => r.fulfill({ contentType: 'text/javascript', body: fakeGis('x9') }));
   await s3.goto('http://localhost:8790/'); await s3.waitForTimeout(300); await s3.click('.fake-gis'); await s3.waitForTimeout(600);
-  console.log('不在名單:', (await s3.textContent('.login-card')).replace(/\s+/g, ' '));
+  console.log('不在名單（自動加入）:', (await s3.textContent('.login-card')).replace(/\s+/g, ' '));
+  console.log('學生名單:', JSON.stringify(env.sheets['學生名單'].data.slice(1)));
   console.log('errors', errs);
   await b.close(); srv.close();
 })().catch(e => { console.error('FAILED', e.message.split('\n')[0]); srv.close(); process.exit(1); });

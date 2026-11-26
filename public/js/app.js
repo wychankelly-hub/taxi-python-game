@@ -115,7 +115,7 @@
       if (prof && prof.inRoster && S.session()) {
         const n = S.pending();
         card.append(
-          el('h2', null, `${prof.name}（${prof.cls} ${prof.no} 號）`),
+          el('h2', null, prof.cls && prof.cls !== '未分班' ? `${prof.name}（${prof.cls} ${prof.no} 號）` : prof.name),
           el('p', { class: 'small' }, `已登入 ${prof.email}　·　${n ? `待傳送 ${n} 筆成績（有網絡時自動傳送）` : '成績已全部傳送'}`),
           el('div', { class: 'row-btns' },
             prof.teacher ? el('a', { class: 'pxbtn', href: 'teacher.html' }, '老師控制台 ▸') : null,

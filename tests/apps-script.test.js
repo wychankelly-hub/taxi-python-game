@@ -64,7 +64,7 @@ const TOKENS = {
   s1: tok('S1001@school.example'),
   s2: tok('s1002@school.example'),
   t1: tok('teacher@school.example'),
-  stranger: tok('nobody@school.example'),
+  stranger: tok('nobody@school.example', { name: 'Nobody Chan' }),
   wrongAud: tok('s1001@school.example', { aud: 'someone-else' }),
   unverified: tok('s1001@school.example', { email_verified: 'false' }),
   expired: tok('s1001@school.example', { exp: '1000' }),
@@ -101,10 +101,21 @@ describe('Apps Script：登入', () => {
   for (const bad of ['wrongAud', 'unverified', 'expired', 'nonexistent']) {
     check(`拒絕無效權杖：${bad}`, env.call({ action: 'login', idToken: bad }).error, 'bad_token');
   }
-  const s = env.call({ action: 'login', idToken: 'stranger' });
-  check('不在名單：可以玩但沒有登入憑證', [s.ok, s.inRoster, s.session], [true, false, undefined]);
+  const off = seeded({ AUTO_REGISTER: '否' });
+  const s = off.call({ action: 'login', idToken: 'stranger' });
+  check('AUTO_REGISTER = 否：不在名單 → 可以玩但沒有登入憑證', [s.ok, s.inRoster, s.session], [true, false, undefined]);
+  check('AUTO_REGISTER = 否：不會加入名單', off.sheets['學生名單'].data.length, 3);
+  const reg = env.call({ action: 'login', idToken: 'stranger' });
+  check('預設自動加入：不在名單的學生登入後取得登入憑證', [reg.ok, reg.inRoster, typeof reg.session], [true, true, 'string']);
+  check('自動加入：班別「未分班」、班號留空、姓名用 Google 名字', env.sheets['學生名單'].data[3], ['nobody@school.example', '未分班', '', 'Nobody Chan']);
+  check('自動加入：總覽有標題 + 3 位學生', env.sheets['總覽'].data.length, 4);
+  env.call({ action: 'login', idToken: 'stranger' });
+  check('再次登入不會重複加入', env.sheets['學生名單'].data.length, 4);
+  const ok = env.call({ action: 'sync', session: reg.session, records: [{ id: 'auto0001', type: 'level', time: new Date().toISOString(), level: '1-1', stars: 3, wrong: 0, seconds: 9 }] });
+  check('自動加入的學生成績照常記錄', [ok.ok, env.sheets['關卡紀錄'].data[1].slice(1, 6)], [true, ['未分班', '', 'Nobody Chan', '1-1', 3]]);
   const t = env.call({ action: 'login', idToken: 't1' });
   check('老師登入（不在學生名單亦可）', [t.ok, t.teacher, typeof t.session], [true, true, 'string']);
+  check('老師帳戶不會被自動加入學生名單', env.sheets['學生名單'].data.some(r => r[0] === 'teacher@school.example'), false);
   const d = seeded({ ALLOWED_DOMAIN: 'school.example' });
   check('限制學校網域：拒絕其他網域', d.call({ action: 'login', idToken: 'otherDomain' }).error, 'wrong_domain');
   const noSecret = makeEnv(TOKENS, { CLIENT_ID, SESSION_SECRET: 'short' });

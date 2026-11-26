@@ -4,7 +4,8 @@
  * 安裝方法見 docs/設定教學.md。指令碼屬性（專案設定 → 指令碼屬性）：
  *   CLIENT_ID        Google Cloud 的 OAuth 用戶端 ID（…apps.googleusercontent.com）
  *   SESSION_SECRET   一串隨機字（至少 32 個字元），用來簽署登入憑證；第一次執行 setupSheets 會自動產生
- *   ALLOWED_DOMAIN   （可選）只接受這個學校網域的帳戶，例如 school.edu.hk
+ *   ALLOWED_DOMAIN   （建議）只接受這個學校網域的帳戶，例如 school.edu.hk
+ *   AUTO_REGISTER    （可選）不在學生名單的學生第一次登入時自動加入名單；預設「是」，設為「否」則只限名單內學生
  *
  * 安全：
  * - 遊戲傳來 Google ID 權杖，這裏向 Google 驗證（aud、iss、email_verified、到期時間），才取得電郵。
@@ -71,7 +72,7 @@ function verifyIdToken_(idToken) {
   var domain = prop_('ALLOWED_DOMAIN');
   var email = String(p.email || '').toLowerCase();
   if (domain && email.split('@')[1] !== domain.toLowerCase()) throw new Error('wrong_domain');
-  return email;
+  return { email: email, name: String(p.name || p.given_name || email.split('@')[0]).slice(0, 60) };
 }
 
 function b64_(bytesOrString) { return Utilities.base64EncodeWebSafe(bytesOrString).replace(/=+$/, ''); }
@@ -177,9 +178,12 @@ function time_(iso) {
 /* ======================= 動作 ======================= */
 
 function login_(idToken) {
-  var email = verifyIdToken_(idToken);
+  var who = verifyIdToken_(idToken);
+  var email = who.email;
   var student = rosterLookup_(email);
   var teacher = isTeacher_(email);
+  // 不在名單的學生：第一次登入時自動加入（老師帳戶不會被加入學生名單）
+  if (!student && !teacher && prop_('AUTO_REGISTER') !== '否') student = autoRegister_(email, who.name);
   if (!student && !teacher) return { ok: true, inRoster: false, email: email };
   return {
     ok: true, inRoster: !!student, teacher: teacher, email: email,
@@ -187,6 +191,22 @@ function login_(idToken) {
     profile: student ? { cls: student.cls, no: student.no, name: student.name } : null,
     unlocked: isUnlocked_(student),
   };
+}
+
+/** 自動把學生加入學生名單（班別「未分班」、班號留空，老師之後可在試算表修改），並更新總覽 */
+function autoRegister_(email, name) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var found = rosterLookup_(email); // 同時登入兩次時避免重複加入
+    if (found) return found;
+    var sh = sheet_('roster');
+    sh.getRange(sh.getLastRow() + 1, 1, 1, 4).setValues([[email, '未分班', '', name]]);
+    updateOverview();
+    return rosterLookup_(email);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /** 寫入一批紀錄（離線補傳）；傳回已收到的編號（包括之前已寫入的） */
