@@ -3,7 +3,7 @@
  */
 window.TSD_CONFIG = {
   // Google Cloud → API 和服務 → 憑證 → OAuth 2.0 用戶端 ID（網頁應用程式）
-  googleClientId: '',
+  googleClientId: '851985981022-hqtte4uv6o35r77ntbic08tpmd917rd7.apps.googleusercontent.com',
   // Apps Script → 部署 → 網頁應用程式網址（…/exec）
-  appsScriptUrl: '',
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwQd6eHN8HBp8h45IJmGWq2LkfeQXBQet64AscY4UfH1dPKjUmpNmrrAIKa121K6zcj/exec',
 };
