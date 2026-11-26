@@ -1,0 +1,892 @@
+{
+ "chapter": 4,
+ "title": "順路經…",
+ "topic": "鏈表 (Linked List)",
+ "sim": "linkedList",
+ "view": {
+  "type": "linked",
+  "arrays": [
+   "data",
+   "nxt"
+  ],
+  "pointers": [
+   "head"
+  ],
+  "bg": "bg_ch4_map",
+  "pickHint": "點下面 data / nxt 的格，或者地圖上的變量"
+ },
+ "intro": "大學生阿 Ken 不停加站、改站，你要用鏈表記住路線。",
+ "review": [
+  "鏈表 (Linked List)：每個節點 (Node) 有資料及指向下一個節點的指標 (Pointer)。",
+  "以陣列表示：`data[i]` 存資料，`nxt[i]` 存下一個節點的索引；`head` 是第一個節點的索引。",
+  "`nxt[i] = -1` 代表這是最後一個節點。",
+  "插入及刪除不用移動其他資料，只需改指標；但要找第 n 個節點，必須由 `head` 開始逐個走（不可直接跳去）。"
+ ],
+ "levels": [
+  {
+   "id": "4-1",
+   "title": "跟住箭咀行",
+   "kind": "預測",
+   "focus": "show_route",
+   "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", None, None]\nnxt = [-1, 2, 0, None, None]\nhead = 1",
+   "dialogue": [
+    {
+     "who": "阿 Ken",
+     "text": "司機，我講咗三個站，你自己睇住個表行啦。"
+    },
+    {
+     "who": "發哥",
+     "text": "唔好由左至右咁讀！跟住 nxt 行！"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "第一個站？",
+     "check": "data[head]",
+     "options": [
+      {
+       "text": "旺角",
+       "correct": true
+      },
+      {
+       "text": "中環",
+       "fb": "中環喺 data[0]，但 head 係 1。"
+      },
+      {
+       "text": "尖沙咀",
+       "fb": "`head` 係 1，即 `data[1]`。",
+       "source": "新增"
+      }
+     ],
+     "hint": "`head` 係幾多？",
+     "hintSource": "新增",
+     "explain": "`head = 1`，`data[1]` 是旺角。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "旺角之後去哪裏？",
+     "check": "data[nxt[1]]",
+     "options": [
+      {
+       "text": "尖沙咀",
+       "correct": true
+      },
+      {
+       "text": "中環",
+       "fb": "`nxt[1]` 係 2，即 `data[2]`。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`nxt[1] = 2`，`data[2]` 是尖沙咀。",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "全程次序？",
+     "run": "show_route()",
+     "checks": [
+      {
+       "output": "旺角、尖沙咀、中環"
+      }
+     ],
+     "options": [
+      {
+       "text": "旺角 → 尖沙咀 → 中環",
+       "correct": true
+      },
+      {
+       "text": "中環 → 旺角 → 尖沙咀",
+       "fb": "唔好由左至右咁讀！跟住 nxt 行。",
+       "source": "新增"
+      },
+      {
+       "text": "旺角 → 中環 → 尖沙咀",
+       "fb": "`nxt[1]` 係 2，旺角之後去 `data[2]`。",
+       "source": "新增"
+      }
+     ],
+     "explain": "由 `head` 開始跟 `nxt` 走：旺角 → 尖沙咀 → 中環。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q4",
+     "prompt": "為何中環是最後一站？",
+     "checks": [
+      {
+       "expr": "nxt[0]",
+       "value": "-1"
+      }
+     ],
+     "options": [
+      {
+       "text": "`nxt[0] = -1`",
+       "correct": true
+      },
+      {
+       "text": "它在 `data[0]`",
+       "fb": "位置唔重要，要睇 `nxt`。",
+       "source": "新增"
+      },
+      {
+       "text": "它是第一個輸入的站",
+       "fb": "輸入次序唔重要，要睇 `nxt`。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`-1` 代表「冇下一個」（終點）。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "4-2",
+   "title": "順路經金鐘",
+   "kind": "操作",
+   "focus": "insert_after",
+   "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", None, None]\nnxt = [-1, 2, 0, None, None]\nhead = 1",
+   "dialogue": [
+    {
+     "who": "阿 Ken",
+     "text": "尖沙咀之後，順路經金鐘先去中環！"
+    },
+    {
+     "who": "發哥",
+     "text": "空位係索引 3。data、兩個 nxt，三格都要改！",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "操作",
+     "type": "operate",
+     "flow": "free",
+     "prompt": "三格都要改，你自己決定次序。",
+     "say": "諗清楚先改邊格！",
+     "saySource": "新增",
+     "ops": [
+      {
+       "run": "data[3] = \"金鐘\"\nnxt[3] = nxt[2]\nnxt[2] = 3",
+       "okSay": "啱！路線而家係旺角 → 尖沙咀 → 金鐘 → 中環。"
+      }
+     ],
+     "buttons": [
+      {
+       "id": "d3",
+       "zh": "寫站名",
+       "en": "data[3] = \"金鐘\"",
+       "color": "orange",
+       "icon": "sprite:icon_stop",
+       "code": "data[3] = \"金鐘\""
+      },
+      {
+       "id": "n3",
+       "zh": "接後路",
+       "en": "nxt[3] = nxt[2]",
+       "color": "blue",
+       "icon": "glyph:→",
+       "code": "nxt[3] = nxt[2]"
+      },
+      {
+       "id": "n2",
+       "zh": "改舊路",
+       "en": "nxt[2] = 3",
+       "color": "red",
+       "icon": "glyph:↪",
+       "code": "nxt[2] = 3"
+      }
+     ],
+     "trap": {
+      "say": "你搞到佢喺金鐘兜咗十個圈呀！中環嗰段路搵唔返喇！",
+      "run": "show_route()",
+      "focus": "show_route",
+      "maxSteps": 30,
+      "stepLimit": 60,
+      "prompt": "`nxt[3]` 變咗做 3，指向自己！"
+     },
+     "hint": "先將新站接去舊路線後面，再將舊站指去新站。",
+     "expectFinal": {
+      "nxt": "[-1, 2, 3, 0, None]"
+     },
+     "doneSay": "順路經金鐘，搞掂！",
+     "explain": "`nxt = [-1, 2, 3, 0, None]`；路線：旺角 → 尖沙咀 → 金鐘 → 中環。",
+     "promptSource": "新增（原文：學生自己決定先改哪一格）"
+    }
+   ]
+  },
+  {
+   "id": "4-3",
+   "title": "插站程式",
+   "kind": "排列 + 捉錯",
+   "focus": "insert_after",
+   "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", None, None]\nnxt = [-1, 2, 0, None, None]\nhead = 1",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "將插站寫成函式，以後阿 Ken 再加站都唔怕。",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "排列",
+     "type": "order",
+     "fn": "insert_after",
+     "prompt": "把 `insert_after` 的 4 行排好（· 代表空格）。",
+     "specials": [
+      {
+       "id": "先改 nxt[p]",
+       "first": "    nxt[p] = new",
+       "then": "    nxt[new] = nxt[p]",
+       "fb": "次序錯咗！先改 `nxt[p]` 就搵唔返舊路，新站會指向自己。",
+       "fbSource": "新增",
+       "demo": {
+        "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", None, None]\nnxt = [-1, 2, 0, None, None]\nhead = 1",
+        "run": "insert_after(2, 3, \"金鐘\")\nshow_route()",
+        "maxSteps": 30,
+        "stepLimit": 80
+       },
+       "expectDemo": {
+        "expr": "nxt[3]",
+        "value": "3"
+       }
+      }
+     ],
+     "hint": "先寫資料，再接後路，最後改舊路。",
+     "hintSource": "新增"
+    },
+    {
+     "id": "捉錯",
+     "type": "bug",
+     "fn": "insert_after",
+     "prompt": "以下 `insert_after` 第 3、4 行對調了。點出有問題的一行。",
+     "code": "def insert_after(p, new, stop):\n    data[new] = stop\n    nxt[p] = new\n    nxt[new] = nxt[p]",
+     "bugLines": [
+      3,
+      4
+     ],
+     "lineFbDefault": "呢行冇問題。睇吓改 nxt 嗰兩行嘅次序。",
+     "lineFbSource": "新增",
+     "demo": {
+      "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", None, None]\nnxt = [-1, 2, 0, None, None]\nhead = 1",
+      "run": "insert_after(2, 3, \"金鐘\")\nshow_route()",
+      "maxSteps": 30,
+      "stepLimit": 80
+     },
+     "expectDemo": {
+      "expr": "nxt[3]",
+      "value": "3"
+     },
+     "fixes": [
+      {
+       "text": "第 3、4 行對調",
+       "correct": true
+      },
+      {
+       "text": "刪除第 3 行",
+       "fb": "咁舊站就唔會指去新站，新站唔喺路線。",
+       "source": "新增"
+      },
+      {
+       "text": "第 4 行改成 `nxt[new] = -1`",
+       "fb": "咁新站之後就冇路，中環唔見咗。",
+       "source": "新增"
+      }
+     ],
+     "hint": "按「試行」睇吓架車點行。",
+     "hintSource": "新增",
+     "explain": "要先 `nxt[new] = nxt[p]`，再 `nxt[p] = new`。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q1",
+     "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", None, None]\nnxt = [-1, 2, 0, None, None]\nhead = 1",
+     "variant": "def insert_after(p, new, stop):\n    data[new] = stop\n    nxt[p] = new\n    nxt[new] = nxt[p]",
+     "prompt": "用這個錯誤版本，由開始狀態執行 `insert_after(2, 3, \"金鐘\")`，之後 `nxt[3]` 是？",
+     "run": "insert_after(2, 3, \"金鐘\")",
+     "check": "nxt[3]",
+     "options": [
+      {
+       "text": "3",
+       "correct": true
+      },
+      {
+       "text": "0",
+       "fb": "`nxt[2]` 已經先改咗做 3，所以 `nxt[3]` 抄到 3。",
+       "source": "新增"
+      },
+      {
+       "text": "-1",
+       "fb": "`nxt[3] = nxt[p]`，而 `nxt[2]` 已經係 3。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`nxt[2]` 先變成 3，`nxt[3] = nxt[2]` 就抄到 3，指向自己。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "結果？",
+     "variant": "def insert_after(p, new, stop):\n    data[new] = stop\n    nxt[p] = new\n    nxt[new] = nxt[p]",
+     "run": "show_route()",
+     "stepLimit": 60,
+     "maxSteps": 30,
+     "checks": [
+      {
+       "error": "StepLimit"
+      }
+     ],
+     "options": [
+      {
+       "text": "路線在金鐘不斷重複，中環不見了",
+       "correct": true
+      },
+      {
+       "text": "正常",
+       "fb": "`nxt[3]` 指向自己，行唔到去中環。",
+       "source": "新增"
+      },
+      {
+       "text": "出現運行錯誤",
+       "fb": "冇超出範圍，只係不停兜圈。",
+       "source": "新增"
+      }
+     ],
+     "explain": "架車在金鐘不停兜圈，中環那段路找不回。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "4-4",
+   "title": "我想先去深水埗",
+   "kind": "填空",
+   "focus": "show_route",
+   "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", None]\nnxt = [-1, 2, 3, 0, None]\nhead = 1",
+   "dialogue": [
+    {
+     "who": "阿 Ken",
+     "text": "唔好意思，我想第一站去深水埗！"
+    },
+    {
+     "who": "發哥",
+     "text": "新站放最前，前面冇站，insert_after 用唔到。自己寫！",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "fill",
+     "code": "data[4] = \"深水埗\"\nnxt[4] = ____\nhead = ？",
+     "prompt": "`nxt[4] = ____` 應填什麼？",
+     "scenario": {
+      "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", None]\nnxt = [-1, 2, 3, 0, None]\nhead = 1",
+      "after": "head = 4\nshow_route()",
+      "checks": [
+       {
+        "output": "深水埗、旺角、尖沙咀、金鐘、中環"
+       }
+      ],
+      "stepLimit": 200
+     },
+     "options": [
+      {
+       "text": "head",
+       "correct": true
+      },
+      {
+       "text": "nxt[head]",
+       "fb": "咁會跳咗旺角。"
+      },
+      {
+       "text": "-1",
+       "fb": "咁深水埗之後就冇站喇。"
+      }
+     ],
+     "hint": "深水埗之後應該去原本嘅第一站。",
+     "hintSource": "新增",
+     "explain": "`nxt[4] = head`：深水埗接去原本的第一站旺角。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "type": "fill",
+     "code": "data[4] = \"深水埗\"\nnxt[4] = head\nhead = ____",
+     "prompt": "`head = ____` 應填什麼？",
+     "scenario": {
+      "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", None]\nnxt = [-1, 2, 3, 0, None]\nhead = 1",
+      "after": "show_route()",
+      "checks": [
+       {
+        "output": "深水埗、旺角、尖沙咀、金鐘、中環"
+       }
+      ],
+      "stepLimit": 200
+     },
+     "options": [
+      {
+       "text": "4",
+       "correct": true
+      },
+      {
+       "text": "nxt[4]",
+       "fb": "`nxt[4]` 係旺角（1），咁第一站仍然係旺角。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "1 係旺角；新嘅第一站係深水埗（索引 4）。",
+       "source": "新增"
+      }
+     ],
+     "hint": "新嘅第一站喺邊個索引？",
+     "hintSource": "新增",
+     "explain": "`head = 4`：第一站改為深水埗。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q3",
+     "prompt": "新路線？",
+     "run": "data[4] = \"深水埗\"\nnxt[4] = head\nhead = 4",
+     "route": "深水埗 → 旺角 → 尖沙咀 → 金鐘 → 中環",
+     "options": [
+      {
+       "text": "深水埗 → 旺角 → 尖沙咀 → 金鐘 → 中環",
+       "correct": true
+      },
+      {
+       "text": "旺角 → 尖沙咀 → 金鐘 → 中環 → 深水埗",
+       "fb": "深水埗係 head，喺最前。",
+       "source": "新增"
+      },
+      {
+       "text": "深水埗 → 中環",
+       "fb": "`nxt[4]` 係 1，即旺角。",
+       "source": "新增"
+      }
+     ],
+     "explain": "由 `head = 4` 開始：深水埗 → 旺角 → 尖沙咀 → 金鐘 → 中環。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q4",
+     "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", None]\nnxt = [-1, 2, 3, 0, None]\nhead = 1",
+     "prompt": "兩行若對調（先 `head = 4` 再 `nxt[4] = head`），會怎樣？",
+     "verify": "data[4] = \"深水埗\"\nhead = 4\nnxt[4] = head",
+     "check": "nxt[4]",
+     "expect": "4",
+     "options": [
+      {
+       "text": "`nxt[4] = 4`，深水埗指向自己，其餘站全部失去",
+       "correct": true
+      },
+      {
+       "text": "一樣正常",
+       "fb": "`head` 已經變咗 4，`nxt[4] = head` 即係 `nxt[4] = 4`。",
+       "source": "新增"
+      },
+      {
+       "text": "出現運行錯誤",
+       "fb": "冇超出範圍，只係指向自己。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`head` 先變成 4，`nxt[4] = head` 就變成 `nxt[4] = 4`。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "4-5",
+   "title": "唔去尖沙咀喇",
+   "kind": "預測",
+   "focus": "delete_after",
+   "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", \"深水埗\"]\nnxt = [-1, 2, 3, 0, 1]\nhead = 4",
+   "dialogue": [
+    {
+     "who": "阿 Ken",
+     "text": "朋友改咗喺金鐘等，尖沙咀唔使去喇。"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "刪除尖沙咀，只需改哪一格？",
+     "verify": "nxt[1] = 3",
+     "route": "深水埗 → 旺角 → 金鐘 → 中環",
+     "options": [
+      {
+       "text": "`nxt[1] = 3`",
+       "correct": true
+      },
+      {
+       "text": "`data[2] = None`",
+       "fb": "`data` 改咗，但 `nxt[1]` 仲指住索引 2，路線照行。",
+       "source": "新增"
+      },
+      {
+       "text": "`nxt[2] = -1`",
+       "fb": "咁金鐘同中環都唔去埋。"
+      }
+     ],
+     "hint": "邊個站嘅箭咀指住尖沙咀？",
+     "hintSource": "新增",
+     "explain": "旺角（索引 1）原本指向尖沙咀；改為指向金鐘（3）即可。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "用 `delete_after(?)` 的話，括號內是？",
+     "verify": "delete_after(1)",
+     "route": "深水埗 → 旺角 → 金鐘 → 中環",
+     "options": [
+      {
+       "text": "1",
+       "correct": true
+      },
+      {
+       "text": "2",
+       "fb": "delete_after(2) 會刪咗尖沙咀後面嗰個站，即金鐘。"
+      }
+     ],
+     "explain": "1 是旺角的索引；刪除的是它後面的站。",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "執行 `delete_after(1)` 後，新路線？",
+     "run": "delete_after(1)",
+     "route": "深水埗 → 旺角 → 金鐘 → 中環",
+     "options": [
+      {
+       "text": "深水埗 → 旺角 → 金鐘 → 中環",
+       "correct": true
+      },
+      {
+       "text": "深水埗 → 旺角 → 尖沙咀 → 中環",
+       "fb": "刪除嘅係旺角之後嘅尖沙咀。",
+       "source": "新增"
+      },
+      {
+       "text": "深水埗 → 金鐘 → 中環",
+       "fb": "旺角冇刪，刪嘅係佢後面嗰站。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`nxt[1]` 變成 3，路線跳過尖沙咀。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q4",
+     "prompt": "`data[2]` 現在是？",
+     "check": "data[2]",
+     "options": [
+      {
+       "text": "尖沙咀",
+       "correct": true
+      },
+      {
+       "text": "None",
+       "fb": "delete_after 只改 `nxt`，冇改 `data`。",
+       "source": "新增"
+      }
+     ],
+     "explain": "仍是尖沙咀，但沒有節點指向它，所以不在路線內。",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "4-6",
+   "title": "行晒全程",
+   "kind": "大頭目",
+   "focus": "show_route",
+   "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", \"深水埗\"]\nnxt = [-1, 3, 3, 0, 1]\nhead = 4",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "最後一關：由頭行到尾，一個站都唔可以漏！"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "fill",
+     "fn": "show_route",
+     "line": "while p != -1:",
+     "blank": "-1",
+     "prompt": "`while p != ____:` 應填什麼？",
+     "scenario": {
+      "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", \"深水埗\"]\nnxt = [-1, 3, 3, 0, 1]\nhead = 4",
+      "run": "show_route()",
+      "checks": [
+       {
+        "output": "深水埗、旺角、金鐘、中環"
+       }
+      ],
+      "stepLimit": 200,
+      "maxSteps": 30
+     },
+     "options": [
+      {
+       "text": "-1",
+       "correct": true
+      },
+      {
+       "text": "0",
+       "fb": "0 係中環嘅索引，咁會喺中環之前停低。",
+       "source": "新增"
+      },
+      {
+       "text": "None",
+       "fb": "`nxt` 用 -1 代表終點，唔係 None；咁會一直行落去。",
+       "source": "新增"
+      }
+     ],
+     "hint": "終點嘅 `nxt` 係幾多？",
+     "hintSource": "新增",
+     "explain": "`-1` 代表「冇下一個」，`p` 變成 -1 就停。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "prompt": "`show_route()` 的輸出？",
+     "run": "show_route()",
+     "checks": [
+      {
+       "output": "深水埗、旺角、金鐘、中環"
+      }
+     ],
+     "options": [
+      {
+       "text": "深水埗、旺角、金鐘、中環",
+       "correct": true
+      },
+      {
+       "text": "深水埗、旺角、尖沙咀、金鐘、中環",
+       "fb": "尖沙咀已經刪咗。",
+       "source": "新增"
+      },
+      {
+       "text": "中環、旺角、尖沙咀、金鐘、深水埗",
+       "fb": "唔好由左至右讀，由 `head` 開始。",
+       "source": "新增"
+      }
+     ],
+     "explain": "由 `head = 4` 跟 `nxt` 走。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "迴圈執行多少次？",
+     "lineCount": "print(data[p])",
+     "expect": "4",
+     "options": [
+      {
+       "text": "4",
+       "correct": true
+      },
+      {
+       "text": "5",
+       "fb": "尖沙咀已經唔喺路線，唔會行到。"
+      },
+      {
+       "text": "3",
+       "fb": "四個站都要印出。",
+       "source": "新增"
+      }
+     ],
+     "explain": "路線有 4 個站，迴圈執行 4 次。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "捉錯",
+     "type": "bug",
+     "fn": "show_route",
+     "prompt": "條件寫成 `while nxt[p] != -1:`。點出錯的一行。",
+     "code": "def show_route():\n    p = head\n    while nxt[p] != -1:\n        print(data[p])\n        p = nxt[p]",
+     "bugLines": [
+      3
+     ],
+     "lineFbDefault": "呢行冇問題。睇吓 while 嘅條件。",
+     "lineFbSource": "新增",
+     "demo": {
+      "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", \"深水埗\"]\nnxt = [-1, 3, 3, 0, 1]\nhead = 4",
+      "run": "show_route()"
+     },
+     "expectDemo": {
+      "output": "深水埗、旺角、金鐘"
+     },
+     "fixes": [
+      {
+       "text": "改成 `while p != -1:`",
+       "correct": true
+      },
+      {
+       "text": "改成 `while nxt[p] != 0:`",
+       "fb": "0 係中環嘅索引，唔係終點。",
+       "source": "新增"
+      },
+      {
+       "text": "改成 `while data[p] != None:`",
+       "fb": "`p` 變成 -1 時，`data[-1]` 係最後一格，唔係 None。",
+       "source": "新增"
+      }
+     ],
+     "hint": "按「試行」：少咗邊個站？",
+     "hintSource": "新增",
+     "explain": "要檢查 `p` 本身是否 -1，最後一個節點才會印出。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "追問",
+     "variant": "def show_route():\n    p = head\n    while nxt[p] != -1:\n        print(data[p])\n        p = nxt[p]",
+     "setup": "data = [\"中環\", \"旺角\", \"尖沙咀\", \"金鐘\", \"深水埗\"]\nnxt = [-1, 3, 3, 0, 1]\nhead = 4",
+     "prompt": "用錯的版本，輸出少了哪一站？",
+     "run": "show_route()",
+     "checks": [
+      {
+       "output": "深水埗、旺角、金鐘"
+      }
+     ],
+     "options": [
+      {
+       "text": "中環（最後一個節點）",
+       "correct": true
+      },
+      {
+       "text": "深水埗",
+       "fb": "第一站一定會印出。",
+       "source": "新增"
+      },
+      {
+       "text": "金鐘",
+       "fb": "金鐘之後仲有中環，所以會印出。",
+       "source": "新增"
+      }
+     ],
+     "explain": "去到中環時 `nxt[p]` 已經是 -1，迴圈停止，中環沒有印出。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  }
+ ],
+ "quiz": {
+  "title": "收工小測",
+  "focus": "show_route",
+  "setup": "data = [\"A\", \"B\", \"C\", \"D\", \"E\"]\nnxt = [3, -1, 4, 1, 0]\nhead = 2",
+  "dialogue": [
+   {
+    "who": "發哥",
+    "text": "收工前考考你！三題，冇提示，每題得一次機會。",
+    "source": "新增"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "小測 1",
+    "prompt": "`data = [A, B, C, D, E]`，`nxt = [3, -1, 4, 1, 0]`，`head = 2`。鏈表次序？",
+    "verify": "show_route()",
+    "route": "C → E → A → D → B",
+    "options": [
+     {
+      "text": "C → E → A → D → B",
+      "correct": true
+     },
+     {
+      "text": "A → B → C → D → E",
+      "fb": "唔好由左至右讀，由 `head` 開始跟 `nxt`。",
+      "source": "新增"
+     },
+     {
+      "text": "C → A → D → B → E",
+      "fb": "`nxt[2]` 係 4，C 之後係 E。",
+      "source": "新增"
+     }
+    ],
+    "explain": "由 `head = 2`（C）開始：C → E → A → D → B。",
+    "explainSource": "新增",
+    "type": "predict"
+   },
+   {
+    "id": "小測 2",
+    "prompt": "要刪除第一個節點，應執行？",
+    "run": "head = nxt[head]",
+    "checks": [
+     {
+      "expr": "head",
+      "value": "4"
+     }
+    ],
+    "route": "E → A → D → B",
+    "options": [
+     {
+      "text": "`head = nxt[head]`",
+      "correct": true
+     },
+     {
+      "text": "`head = -1`",
+      "fb": "咁成條路線都冇晒。",
+      "source": "新增"
+     },
+     {
+      "text": "`nxt[head] = -1`",
+      "fb": "咁會斷咗第一站之後嘅路。",
+      "source": "新增"
+     },
+     {
+      "text": "`data[head] = None`",
+      "fb": "`head` 仲指住佢，佢仍然係第一個節點。",
+      "source": "新增"
+     }
+    ],
+    "explain": "之後 `head = 4`，鏈表變成 E → A → D → B。",
+    "explainSource": "新增",
+    "type": "predict"
+   },
+   {
+    "id": "小測 3",
+    "prompt": "鏈表比陣列優勝之處？",
+    "concept": true,
+    "options": [
+     {
+      "text": "插入或刪除時不用移動其他資料",
+      "correct": true
+     },
+     {
+      "text": "可以直接存取第 n 個項目",
+      "fb": "鏈表要由 head 逐個走。",
+      "source": "新增"
+     },
+     {
+      "text": "用較少記憶體",
+      "fb": "鏈表要多一行 `nxt`，用多咗記憶體。",
+      "source": "新增"
+     },
+     {
+      "text": "可以用對分檢索",
+      "fb": "鏈表不能直接跳去中間的節點。",
+      "source": "新增"
+     }
+    ],
+    "explain": "插入或刪除只需改指標。",
+    "explainSource": "新增",
+    "type": "predict"
+   }
+  ]
+ }
+}

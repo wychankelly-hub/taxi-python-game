@@ -1,0 +1,28 @@
+/* teacher.css — 老師控制台（可在電腦或手機使用） */
+.app.teacher { max-width: 1100px; }
+.filters { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; }
+.filters label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--dim); }
+.filters select, .filters input { min-height: 40px; font: inherit; font-size: 15px; color: var(--ink); background: var(--cream); border: 3px solid var(--edge); padding: 0 6px; }
+.exam-tabs.t3 { grid-template-columns: repeat(3, 1fr); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.grid { border-collapse: collapse; font-size: 13px; min-width: 100%; }
+table.grid th, table.grid td { border: 1px solid #2c3150; padding: 4px 6px; text-align: center; white-space: nowrap; }
+table.grid thead th { background: var(--panel-2); color: var(--gold); font-size: 12px; position: sticky; top: 0; }
+table.grid th.sticky { position: sticky; left: 0; background: var(--panel); text-align: left; z-index: 1; }
+table.grid td.num { font-variant-numeric: tabular-nums; }
+table.grid.errors td { text-align: left; white-space: normal; }
+.cell { min-width: 30px; height: 26px; font-size: 10px; color: #1c1a17; }
+.cell.s0 { background: #4a4f6a; }
+.cell.s1 { background: #f2c14e; }
+.cell.s2 { background: #a7dd7c; }
+.cell.s3 { background: #3cb96a; }
+.legend { margin: 0; font-size: 13px; color: var(--dim); display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.legend .cell { display: inline-block; width: 18px; min-width: 18px; height: 14px; border: 1px solid var(--edge); }
+button.link { background: none; border: 0; color: var(--text); font-weight: 700; text-decoration: underline; min-height: 36px; padding: 0; }
+.lv-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.cell.big { height: auto; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; font-size: 12px; border: 2px solid var(--edge); }
+.cell.big span { font-size: 11px; }
+.mpanel h3 { margin: 4px 0 0; font-size: 15px; color: var(--gold); }
+.unlock-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 2px dashed var(--panel-2); }
+.pxbtn.on { background: var(--good); color: var(--ink); }
+.need { color: var(--bad); margin: 0; font-size: 14px; }

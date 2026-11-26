@@ -1,0 +1,743 @@
+{
+ "chapter": 2,
+ "title": "的士站",
+ "topic": "隊列 (Queue)",
+ "sim": "shiftQueue",
+ "view": {
+  "type": "queue",
+  "arrays": [
+   "rank"
+  ],
+  "pointers": [
+   "count"
+  ],
+  "bg": "bg_ch2_stand",
+  "moveLine": "rank[i] = rank[i + 1]",
+  "pickHint": "點車位，或者下面的變量"
+ },
+ "intro": "的士站有 5 個車位，車位 0 是最前；頭架車載客離開後，後面每架車都要向前移一格。",
+ "review": [
+  "隊列 (Queue)：在隊尾加入 (enqueue, enq)，在隊頭取出 (dequeue, deq)，即先進先出 (FIFO, First In First Out)。",
+  "移位版：隊頭永遠在 `rank[0]`；`count` 記錄有多少個項目，新項目放在 `rank[count]`。",
+  "`count == 0` 代表空，`count == 5` 代表已滿。",
+  "deq 後要把 `rank[1]` 至 `rank[count-1]` 逐一向前移一格。"
+ ],
+ "levels": [
+  {
+   "id": "2-1",
+   "title": "排隊等客",
+   "kind": "操作",
+   "focus": "enq",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "入的士站要排隊，唔好打尖！新嚟嘅車排最尾。"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "操作",
+     "type": "operate",
+     "prompt": "依次執行 enq(\"阿強\")、enq(\"阿明\")、enq(\"肥仔\")。每架車都要自己用「泊車」及「count + 1」完成。",
+     "promptSource": "新增",
+     "say": "先泊車，再 count + 1！",
+     "saySource": "新增",
+     "ops": [
+      {
+       "run": "enq(\"阿強\")",
+       "item": "阿強"
+      },
+      {
+       "run": "enq(\"阿明\")",
+       "item": "阿明"
+      },
+      {
+       "run": "enq(\"肥仔\")",
+       "item": "肥仔"
+      }
+     ],
+     "buttons": [
+      {
+       "id": "put",
+       "zh": "泊車",
+       "en": "[rank[count] = x]",
+       "color": "orange",
+       "icon": "item",
+       "code": "rank[count] = x"
+      },
+      {
+       "id": "inc",
+       "zh": "count + 1",
+       "en": "[count = count + 1]",
+       "color": "blue",
+       "icon": "arrow",
+       "code": "count = count + 1"
+      },
+      {
+       "id": "auto",
+       "zh": "入站",
+       "en": "[Enqueue]",
+       "color": "green",
+       "icon": "sprite:taxi_small",
+       "locked": "本關要逐步做"
+      }
+     ],
+     "order": [
+      "put",
+      "inc"
+     ],
+     "rules": {
+      "early": {
+       "inc": "新車要放喺 `rank[count]`，`count` 而家係幾多？"
+      },
+      "dup": "每架車，`count` 只係 +1。",
+      "dupSource": "新增"
+     },
+     "hint": "`count` 同時話你知有幾多架車，同埋下一個空位喺邊。",
+     "expectFinal": {
+      "rank": "[阿強, 阿明, 肥仔, None, None]",
+      "count": "3"
+     },
+     "doneSay": "三架車排好晒隊！",
+     "explain": "三次 enq 後：`rank = [阿強, 阿明, 肥仔, None, None]`，`count = 3`。",
+     "explainSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "2-2",
+   "title": "頭架車走",
+   "kind": "預測",
+   "focus": "deq",
+   "setup": "rank = [\"阿強\", \"阿明\", \"肥仔\", None, None]\ncount = 3",
+   "dialogue": [
+    {
+     "who": "乘客",
+     "text": "唔該，去機場！"
+    },
+    {
+     "who": "發哥",
+     "text": "阿強載客離開，後面啲車要郁喇。",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "`deq()` 傳回什麼？",
+     "run": "deq()",
+     "check": "result",
+     "options": [
+      {
+       "text": "阿強",
+       "correct": true
+      },
+      {
+       "text": "肥仔",
+       "fb": "肥仔最遲到，點會佢先走？"
+      },
+      {
+       "text": "阿明",
+       "fb": "阿明排第二，要等阿強走咗先到佢。",
+       "source": "新增"
+      }
+     ],
+     "hint": "隊頭永遠喺 `rank[0]`。",
+     "hintSource": "新增",
+     "explain": "deq 取出隊頭 `rank[0]`（阿強），之後後面的車向前移。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "執行後 `rank` 是？",
+     "check": "rank",
+     "options": [
+      {
+       "text": "[阿明, 肥仔, 肥仔, None, None]",
+       "correct": true
+      },
+      {
+       "text": "[阿明, 肥仔, None, None, None]",
+       "fb": "迴圈只係複製去前一格，冇清除最後一格；`rank[2]` 仲係肥仔。",
+       "source": "新增"
+      },
+      {
+       "text": "[None, 阿明, 肥仔, None, None]",
+       "fb": "移位版係將後面嘅車向前移，隊頭永遠喺 `rank[0]`。",
+       "source": "新增"
+      }
+     ],
+     "hint": "`rank[i] = rank[i + 1]` 只係複製，冇刪除。",
+     "hintSource": "新增",
+     "explain": "迴圈只是「複製」到前一格，沒有清除最後一格；`rank[2]` 的肥仔是舊資料，因為 `count` 已是 2，它不算在隊列內（灰色顯示）。",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "`count` 是多少？",
+     "check": "count",
+     "options": [
+      {
+       "text": "2",
+       "correct": true
+      },
+      {
+       "text": "3",
+       "fb": "deq 最後會執行 `count = count - 1`。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "只係走咗一架車。",
+       "source": "新增"
+      }
+     ],
+     "hint": "走咗一架車。",
+     "hintSource": "新增",
+     "explain": "三架車走了一架，`count` 由 3 變成 2。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q4",
+     "prompt": "迴圈內 `rank[i] = rank[i + 1]` 執行了多少次？",
+     "checkMoves": true,
+     "options": [
+      {
+       "text": "2",
+       "correct": true
+      },
+      {
+       "text": "3",
+       "fb": "`count` 係 3，`range(count - 1)` 即 `range(2)`，得 2 次。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "阿明同肥仔兩架車都要郁。",
+       "source": "新增"
+      }
+     ],
+     "hint": "睇右上角嘅「移動次數」。",
+     "hintSource": "新增",
+     "explain": "`range(count - 1)` 即 `range(2)`：阿明及肥仔各移一次。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "2-3",
+   "title": "郁到攰",
+   "kind": "預測",
+   "focus": "deq",
+   "setup": "rank = [\"A\", \"B\", \"C\", \"D\", \"E\"]\ncount = 5",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "五架車排滿，前面走一架，後面四架都要郁……好嘥油！"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "執行一次 `deq()`，共移動多少次？",
+     "run": "deq()",
+     "checkMoves": true,
+     "options": [
+      {
+       "text": "4",
+       "correct": true
+      },
+      {
+       "text": "5",
+       "fb": "隊頭嗰架係載客走，唔使郁；淨係後面四架向前移。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "後面每一架都要向前移一格。",
+       "source": "新增"
+      }
+     ],
+     "hint": "後面有幾多架車？",
+     "hintSource": "新增",
+     "explain": "A 載客離開，B、C、D、E 各向前移一格，共 4 次。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "由同一開始狀態連續執行三次 `deq()`，共移動多少次？",
+     "setup": "rank = [\"A\", \"B\", \"C\", \"D\", \"E\"]\ncount = 5",
+     "run": "deq()\ndeq()\ndeq()",
+     "checkMoves": true,
+     "options": [
+      {
+       "text": "9",
+       "correct": true
+      },
+      {
+       "text": "12",
+       "fb": "每次 deq 之後車少咗，移動次數會遞減：4 + 3 + 2。",
+       "source": "新增"
+      },
+      {
+       "text": "3",
+       "fb": "唔係每次移一架，係後面全部都要移。",
+       "source": "新增"
+      }
+     ],
+     "hint": "每次 deq 後少一架車：4 + ? + ?",
+     "hintSource": "新增",
+     "explain": "4 + 3 + 2 = 9 次。",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "如果的士站有 100 個車位而且排滿，一次 `deq()` 要移動多少次？",
+     "concept": true,
+     "options": [
+      {
+       "text": "99",
+       "correct": true
+      },
+      {
+       "text": "100",
+       "fb": "隊頭嗰架係載客走，唔使郁。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "後面 99 架都要向前移一格。",
+       "source": "新增"
+      }
+     ],
+     "hint": "5 個車位時移 4 次。",
+     "hintSource": "新增",
+     "explain": "發哥：「一定有更好嘅方法……」",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "2-4",
+   "title": "填空",
+   "kind": "填空",
+   "focus": "enq",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "程式有幾格唔見咗，幫我補返！",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "fill",
+     "fn": "enq",
+     "line": "rank[count] = x",
+     "blank": "count",
+     "prompt": "`enq` 內 `rank[____] = x` 應填什麼？",
+     "scenario": {
+      "setup": "",
+      "run": "enq(\"A\")\nenq(\"B\")\nenq(\"C\")\nr = deq()",
+      "checks": [
+       {
+        "expr": "r",
+        "value": "A"
+       },
+       {
+        "expr": "count",
+        "value": "2"
+       }
+      ]
+     },
+     "options": [
+      {
+       "text": "count",
+       "correct": true
+      },
+      {
+       "text": "count + 1",
+       "fb": "咁會留低一個空位，仲會喺第 5 架車出錯。"
+      },
+      {
+       "text": "count - 1",
+       "fb": "第一架車會放咗喺 `rank[-1]`，即係最後一格（索引 4），之後 `deq()` 會傳回第二架車！"
+      },
+      {
+       "text": "0",
+       "fb": "咁每架車都泊喺 `rank[0]`，蓋住前一架。",
+       "source": "新增"
+      }
+     ],
+     "hint": "新車要放喺下一個空位；`count` 係幾多就係邊格。",
+     "hintSource": "新增",
+     "explain": "`count` 是車的數量，亦是下一個空位的索引。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "type": "fill",
+     "fn": "deq",
+     "line": "for i in range(count - 1):",
+     "blank": "count - 1",
+     "prompt": "`deq` 內 `for i in range(____):` 應填什麼？",
+     "scenario": {
+      "setup": "rank = [\"A\", \"B\", \"C\", \"D\", \"E\"]\ncount = 5",
+      "run": "r = deq()",
+      "checks": [
+       {
+        "expr": "r",
+        "value": "A"
+       },
+       {
+        "expr": "rank",
+        "value": "[B, C, D, E, E]"
+       },
+       {
+        "expr": "count",
+        "value": "4"
+       }
+      ]
+     },
+     "options": [
+      {
+       "text": "count - 1",
+       "correct": true
+      },
+      {
+       "text": "count",
+       "fb": "最後一次會做 `rank[count-1] = rank[count]`；當 `count` 係 5，`rank[5]` 超出範圍，出現運行錯誤 (IndexError)。"
+      },
+      {
+       "text": "5",
+       "fb": "車唔一定有 5 架；而且 `i` 去到 4 時 `rank[5]` 會超出範圍。",
+       "source": "新增"
+      }
+     ],
+     "hint": "有 `count` 架車，走咗一架，要郁幾多架？",
+     "hintSource": "新增",
+     "explain": "後面 `count - 1` 架車要向前移。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q3",
+     "prompt": "`deq` 內 `count = count - 1` 應該放在哪裏？",
+     "concept": true,
+     "options": [
+      {
+       "text": "迴圈之後",
+       "correct": true
+      },
+      {
+       "text": "迴圈之內",
+       "fb": "咁每郁一架車就減一次，`count` 會錯。"
+      }
+     ],
+     "hint": "走咗幾多架車？",
+     "hintSource": "新增",
+     "explain": "只有一架車離開，所以 `count` 只減一次，放在迴圈之後。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "2-5",
+   "title": "砌返個 deq",
+   "kind": "排列",
+   "focus": "deq",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "deq 最多行，砌錯一行就成條隊亂晒。"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "任務",
+     "type": "order",
+     "fn": "deq",
+     "prompt": "把打亂的 10 行排成 `deq`（各行已帶縮排，· 代表空格）。",
+     "specials": [
+      {
+       "id": "x = rank[0] 在迴圈後",
+       "first": "        rank[i] = rank[i + 1]",
+       "then": "    x = rank[0]",
+       "fb": "你傳回咗第二架車！頭架車已經俾後面架車蓋咗。要先記低 `rank[0]`，先至郁車。",
+       "fbSource": "新增",
+       "demo": {
+        "setup": "rank = [\"阿強\", \"阿明\", \"肥仔\", None, None]\ncount = 3",
+        "run": "deq()"
+       },
+       "expectDemo": {
+        "expr": "result",
+        "value": "阿明"
+       }
+      }
+     ],
+     "hint": "先檢查空唔空，再記低隊頭，然後郁車，最後 `count` 減 1 及傳回。",
+     "hintSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "2-6",
+   "title": "的士站爆滿",
+   "kind": "捉錯 + 大頭目",
+   "focus": "enq",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "今晚啲車多到爆！個 enq 好似有啲問題……",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "捉錯",
+     "type": "bug",
+     "fn": "enq",
+     "prompt": "以下 `enq` 有一行錯。點出錯的一行。",
+     "code": "def enq(x):\n    global count\n    if count > 5:\n        print(\"的士站已滿\")\n    else:\n        rank[count] = x\n        count = count + 1",
+     "bugLines": [
+      3
+     ],
+     "lineFbDefault": "呢行冇問題。睇吓檢查「滿」嗰行。",
+     "lineFbSource": "新增",
+     "demo": {
+      "setup": "",
+      "run": "enq(\"A\")\nenq(\"B\")\nenq(\"C\")\nenq(\"D\")\nenq(\"E\")\nenq(\"F\")"
+     },
+     "expectDemo": {
+      "error": "IndexError"
+     },
+     "fixes": [
+      {
+       "text": "改成 `if count == 5:`",
+       "correct": true
+      },
+      {
+       "text": "改成 `if count >= 6:`",
+       "fb": "`count` 去到 5 已經滿，等到 6 已經太遲。",
+       "source": "新增"
+      },
+      {
+       "text": "改成 `if count < 5:`",
+       "fb": "咁未滿都話滿，滿咗反而照放。",
+       "source": "新增"
+      }
+     ],
+     "hint": "按「試行」：第 6 架車入站時會點？",
+     "hintSource": "新增",
+     "explain": "容量是 5，`count == 5` 就代表已滿。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "追問",
+     "prompt": "用錯的版本，第 6 架車 `enq` 時會怎樣？",
+     "concept": true,
+     "options": [
+      {
+       "text": "出現運行錯誤（`rank[5]` 超出範圍）",
+       "correct": true
+      },
+      {
+       "text": "顯示「的士站已滿」",
+       "fb": "`count` 係 5，`5 > 5` 唔成立，唔會顯示。",
+       "source": "新增"
+      },
+      {
+       "text": "第 6 架車蓋住第 1 架車",
+       "fb": "`rank[5]` 唔係 `rank[0]`；Python 會報超出範圍。",
+       "source": "新增"
+      }
+     ],
+     "hint": "`5 > 5` 成唔成立？",
+     "hintSource": "新增",
+     "explain": "`5 > 5` 不成立，程式執行 `rank[5] = x`，超出範圍 (IndexError)。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q1",
+     "setup": "",
+     "dialogue": [
+      {
+       "who": "發哥",
+       "text": "大頭目！由空的士站開始，睇住啲車點入點出。",
+       "source": "新增"
+      }
+     ],
+     "prompt": "由空的士站執行 `enq(\"A\")`、`enq(\"B\")`、`enq(\"C\")`、`deq()`、`enq(\"D\")`、`deq()`。兩次 `deq()` 的輸出？",
+     "run": "enq(\"A\")\nenq(\"B\")\nenq(\"C\")\na = deq()\nenq(\"D\")\nb = deq()",
+     "check": "[a, b]",
+     "expect": "[A, B]",
+     "options": [
+      {
+       "text": "A、B",
+       "correct": true
+      },
+      {
+       "text": "C、D",
+       "fb": "隊列係先進先出，最先入嘅最先走。",
+       "source": "新增"
+      },
+      {
+       "text": "A、A",
+       "fb": "第一次 deq 後 A 已經離開，第二次輪到 B。",
+       "source": "新增"
+      },
+      {
+       "text": "B、C",
+       "fb": "第一次 deq 時 A 仲喺隊頭。",
+       "source": "新增"
+      }
+     ],
+     "hint": "先進先出。",
+     "hintSource": "新增",
+     "explain": "第一次 deq 取出 A；第二次 deq 時隊頭是 B。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "最後 `rank` 及 `count`？",
+     "checks": [
+      {
+       "expr": "rank",
+       "value": "[C, D, D, None, None]"
+      },
+      {
+       "expr": "count",
+       "value": "2"
+      }
+     ],
+     "options": [
+      {
+       "text": "`[C, D, D, None, None]`，`count = 2`",
+       "correct": true
+      },
+      {
+       "text": "`[C, D, None, None, None]`，`count = 2`",
+       "fb": "移位後最後一格保留舊值，`rank[2]` 仲係 D。",
+       "source": "新增"
+      },
+      {
+       "text": "`[None, None, C, D, None]`，`count = 2`",
+       "fb": "移位版每次都將車向前移，隊頭永遠喺 `rank[0]`。",
+       "source": "新增"
+      }
+     ],
+     "hint": "移位後最後一格會留低舊資料。",
+     "hintSource": "新增",
+     "explain": "`rank[2]` 的 D 是舊資料；`count = 2`，只有 C、D 在隊列內。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  }
+ ],
+ "quiz": {
+  "title": "收工小測",
+  "focus": "deq",
+  "setup": "",
+  "dialogue": [
+   {
+    "who": "發哥",
+    "text": "收工前考考你！三題，冇提示，每題得一次機會。",
+    "source": "新增"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "小測 1",
+    "prompt": "由空隊列 `enq(\"P\")`、`enq(\"Q\")`、`deq()`，傳回什麼？",
+    "run": "enq(\"P\")\nenq(\"Q\")\nr = deq()",
+    "check": "r",
+    "options": [
+     {
+      "text": "P",
+      "correct": true
+     },
+     {
+      "text": "Q",
+      "fb": "Q 後入，要排喺 P 後面。",
+      "source": "新增"
+     },
+     {
+      "text": "None",
+      "fb": "隊列有車，唔會傳回 None。",
+      "source": "新增"
+     }
+    ],
+    "explain": "先進先出：P 最先入，最先出。",
+    "explainSource": "新增",
+    "type": "predict"
+   },
+   {
+    "id": "小測 2",
+    "setup": "rank = [\"A\", \"B\", \"C\", \"D\", None]\ncount = 4",
+    "prompt": "`count = 4` 時執行 `deq()`，迴圈內的賦值執行多少次？",
+    "run": "deq()",
+    "checkMoves": true,
+    "options": [
+     {
+      "text": "3",
+      "correct": true
+     },
+     {
+      "text": "4",
+      "fb": "`range(count - 1)` 即 `range(3)`。",
+      "source": "新增"
+     },
+     {
+      "text": "1",
+      "fb": "後面三架車都要移。",
+      "source": "新增"
+     }
+    ],
+    "explain": "`range(3)`：B、C、D 各移一次。",
+    "explainSource": "新增",
+    "type": "predict"
+   },
+   {
+    "id": "小測 3",
+    "prompt": "以下哪一項是移位版隊列的主要缺點？",
+    "concept": true,
+    "options": [
+     {
+      "text": "每次 deq 都要移動其餘所有項目，項目越多越慢",
+      "correct": true
+     },
+     {
+      "text": "只可以放 5 個項目",
+      "fb": "容量可以改大，唔係移位版獨有嘅缺點。",
+      "source": "新增"
+     },
+     {
+      "text": "不可以知道隊列是否已滿",
+      "fb": "`count == 5` 就知道已滿。",
+      "source": "新增"
+     },
+     {
+      "text": "deq 會傳回最後的項目",
+      "fb": "deq 傳回 `rank[0]`，即隊頭。",
+      "source": "新增"
+     }
+    ],
+    "explain": "移動次數與項目數量成正比；第三更會用環形隊列解決。",
+    "explainSource": "新增",
+    "type": "predict"
+   }
+  ]
+ }
+}

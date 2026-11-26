@@ -1,0 +1,776 @@
+{
+ "chapter": 1,
+ "title": "車尾箱",
+ "topic": "堆疊 (Stack)",
+ "sim": "stack",
+ "view": {
+  "type": "stack",
+  "array": "trunk",
+  "pointer": "top",
+  "pickHint": "點車尾箱的格，或者咪錶上的變量"
+ },
+ "intro": "車尾箱只放得一行 5 袋行李，最後放入的一袋必須最先拎出。",
+ "review": [
+  "堆疊 (Stack)：只可以在頂部加入 (push) 或取出 (pop) 項目，即後進先出 (LIFO, Last In First Out)。",
+  "`top` 記錄頂部項目的索引；`top = -1` 代表空堆疊；容量為 5 時，`top == 4` 代表已滿。",
+  "push：先 `top + 1`，再放入資料。pop：先取出資料，再 `top - 1`。",
+  "`global top`：在函式內修改函式外的變量時要寫，否則 Python 會當 `top` 是另一個新變量。"
+ ],
+ "levels": [
+  {
+   "id": "1-1",
+   "title": "阿婆上車",
+   "kind": "操作",
+   "focus": "push",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "阿婆",
+     "text": "後生仔，幫我放三袋嘢入車尾箱呀。"
+    },
+    {
+     "who": "發哥",
+     "text": "記住，先郁 top，再放嘢！"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "操作",
+     "type": "operate",
+     "prompt": "依次執行 push(\"紅\")、push(\"藍\")、push(\"橙\")。每一袋都要自己用「top + 1」及「放行李」完成。",
+     "ops": [
+      {
+       "run": "push(\"紅\")",
+       "item": "紅"
+      },
+      {
+       "run": "push(\"藍\")",
+       "item": "藍"
+      },
+      {
+       "run": "push(\"橙\")",
+       "item": "橙"
+      }
+     ],
+     "rules": {
+      "placeFirst": "你放落 `trunk[top]`，而家 `top` 係 {top}，即係 `trunk[{top}]`{effect}先郁 top 啲！",
+      "wrongCell": "放嘅位置一定係 `trunk[top]`。",
+      "wrongPtr": "每次 push，`top` 只係 +1，唔好按多咗或者少咗。",
+      "wrongPtrSource": "新增",
+      "placeFirstEffects": {
+       "minus": "。Python 嘅 `trunk[-1]` 係最後一格（索引 4），唔係最底！",
+       "cover": "，會壓扁咗{bag}袋！",
+       "empty": "。"
+      },
+      "placeFirstSource": "作者要求（2026-11-24）：讀出當時 top 的數值，取代原文「你放落 trunk[-1] 呀？先郁 top 啲！」",
+      "early": {
+       "put": "placeFirst"
+      },
+      "dup": "每次 push，`top` 只係 +1，唔好按多咗或者少咗。"
+     },
+     "hint": "空車尾箱 top 係 -1，+1 就係 0，即係最底嘅格。",
+     "expectFinal": {
+      "trunk": "[紅, 藍, 橙, None, None]",
+      "top": "2"
+     },
+     "explain": "三次 push 後：`trunk = [紅, 藍, 橙, None, None]`，`top = 2`。",
+     "explainSource": "新增",
+     "promptSource": "新增（方案 A 按鈕說明）",
+     "buttons": [
+      {
+       "id": "top",
+       "zh": "郁 top",
+       "en": "[top + 1]",
+       "color": "blue",
+       "icon": "arrow",
+       "code": "top = top + 1",
+       "say": "`top` 而家係 {top}。跟住放行李！"
+      },
+      {
+       "id": "put",
+       "zh": "放行李",
+       "en": "[trunk[top] = x]",
+       "color": "orange",
+       "icon": "item",
+       "code": "trunk[top] = x"
+      },
+      {
+       "id": "auto",
+       "zh": "上客",
+       "en": "[Push]",
+       "color": "green",
+       "icon": "sprite:taxi_small",
+       "locked": "本關要逐步做"
+      }
+     ],
+     "order": [
+      "top",
+      "put"
+     ],
+     "say": "記住，先郁 top，再放嘢！",
+     "doneSay": "做得好！三袋都放好晒。"
+    }
+   ]
+  },
+  {
+   "id": "1-2",
+   "title": "阿婆落車",
+   "kind": "預測",
+   "focus": "pop",
+   "setup": "trunk = [\"紅\", \"藍\", \"橙\", None, None]\ntop = 2",
+   "dialogue": [
+    {
+     "who": "阿婆",
+     "text": "我到喂，幫我拎兩袋出嚟就得。"
+    },
+    {
+     "who": "發哥",
+     "text": "pop 兩次！睇住個程式，估吓每一步會點先，唔好亂嚟！",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "predict",
+     "prompt": "第一次 `pop()` 傳回什麼？",
+     "run": "pop()",
+     "check": "result",
+     "options": [
+      {
+       "text": "橙",
+       "correct": true
+      },
+      {
+       "text": "紅",
+       "fb": "紅袋最先入，壓底呀。"
+      },
+      {
+       "text": "None",
+       "fb": "車尾箱入面有三袋嘢，`top` 唔係 -1，唔會傳回 None。",
+       "source": "新增"
+      }
+     ],
+     "hint": "pop 拎嘅係 `trunk[top]`，而家 `top` 係 2。",
+     "hintSource": "新增",
+     "explain": "pop 取出頂部項目 `trunk[2]`（橙），然後 `top` 減 1 變成 1。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "type": "predict",
+     "prompt": "兩次 `pop()` 後 `top` 是多少？",
+     "run": "pop()",
+     "check": "top",
+     "options": [
+      {
+       "text": "0",
+       "correct": true
+      },
+      {
+       "text": "1",
+       "fb": "1 只係第一次 pop 之後；pop 咗兩次，`top` 要減兩次。",
+       "source": "新增"
+      },
+      {
+       "text": "-1",
+       "fb": "仲有紅袋喺車尾箱入面，未空；`top` 要等三袋都拎晒先係 -1。",
+       "source": "新增"
+      },
+      {
+       "text": "2",
+       "fb": "睇吓 `top = top - 1` 呢行：每次 pop 都會減 1。",
+       "source": "新增"
+      }
+     ],
+     "hint": "每 pop 一次，`top` 減 1。由 2 開始，減兩次。",
+     "hintSource": "新增",
+     "explain": "第二次 pop 取出藍，`top` 由 1 變成 0，只剩紅袋在堆疊內。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q3",
+     "type": "predict",
+     "prompt": "`trunk[2]` 現在是什麼？",
+     "check": "trunk[2]",
+     "options": [
+      {
+       "text": "橙",
+       "correct": true
+      },
+      {
+       "text": "None",
+       "fb": "程式邊一行將佢設做 None？睇清楚 pop() 啲。"
+      },
+      {
+       "text": "藍",
+       "fb": "藍袋一直都喺 `trunk[1]`；pop 冇將任何嘢搬位。",
+       "source": "新增"
+      }
+     ],
+     "hint": "睇吓 pop() 入面，有冇一行係寫入 `trunk` 嘅？",
+     "hintSource": "新增",
+     "explain": "pop 只是移動 `top`，沒有刪除陣列內的資料；橙仍在陣列，但已不屬於堆疊（介面轉為灰色）。"
+    }
+   ]
+  },
+  {
+   "id": "1-3",
+   "title": "最底嗰袋",
+   "kind": "預測",
+   "focus": "pop",
+   "setup": "trunk = [\"紅\", \"藍\", \"橙\", \"黃\", None]\ntop = 3",
+   "dialogue": [
+    {
+     "who": "趕飛機太太",
+     "text": "我要紅色嗰袋，快啲！"
+    },
+    {
+     "who": "發哥",
+     "text": "佢嗰袋壓底喇……"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "predict",
+     "prompt": "要執行多少次 `pop()` 才取得紅？",
+     "verify": "n = 0\nx = None\nwhile x != \"紅\":\n    x = pop()\n    n = n + 1",
+     "check": "n",
+     "options": [
+      {
+       "text": "4",
+       "correct": true
+      },
+      {
+       "text": "3",
+       "fb": "3 次之後紅袋仍然喺車尾箱，要再 pop 一次先拎到。"
+      },
+      {
+       "text": "1",
+       "fb": "紅袋喺最底，唔係頂部；pop 一次只會拎到黃袋。",
+       "source": "新增"
+      }
+     ],
+     "hint": "pop 只可以由頂部拎。由上數落嚟，紅袋係第幾袋？",
+     "hintSource": "新增",
+     "explain": "紅袋在 `trunk[0]`，上面壓著黃、橙、藍三袋；要 pop 4 次才取得紅。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "type": "predict",
+     "prompt": "依次 pop 出來的次序是？",
+     "run": "a = pop()\nb = pop()\nc = pop()\nd = pop()",
+     "check": "[a, b, c, d]",
+     "expect": "[黃, 橙, 藍, 紅]",
+     "options": [
+      {
+       "text": "黃、橙、藍、紅",
+       "correct": true
+      },
+      {
+       "text": "紅、藍、橙、黃",
+       "fb": "呢個係放入嘅次序；堆疊係後進先出，拎出嚟嘅次序會倒轉。",
+       "source": "新增"
+      }
+     ],
+     "hint": "後進先出：最後放入嘅最先出嚟。",
+     "hintSource": "新增",
+     "explain": "後進先出 (LIFO)：最後放入的黃最先出來，最先放入的紅最後出來。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q3",
+     "type": "predict",
+     "prompt": "其他三袋要放回車尾箱，而且要保持原來次序（藍在最底），應以什麼次序 push？",
+     "run": "push(\"藍\")\npush(\"橙\")\npush(\"黃\")",
+     "focus": "push",
+     "check": "[trunk[0], trunk[1], trunk[2]]",
+     "expect": "[藍, 橙, 黃]",
+     "options": [
+      {
+       "text": "藍、橙、黃",
+       "correct": true
+      },
+      {
+       "text": "黃、橙、藍",
+       "fb": "咁樣黃袋就壓底喇！"
+      }
+     ],
+     "hint": "最先 push 嘅會喺最底。",
+     "hintSource": "新增",
+     "explain": "先 push 的放在下面：藍在 `trunk[0]`，橙在 `trunk[1]`，黃在 `trunk[2]`。",
+     "explainSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "1-4",
+   "title": "塞爆車尾箱",
+   "kind": "填空",
+   "focus": "push",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "個車尾箱得 5 格，第 6 袋放唔落就要講啲乘客知，唔好硬塞！"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "fill",
+     "fn": "push",
+     "blank": "top == 4",
+     "prompt": "`push` 內 `if ____:` 應填什麼？",
+     "scenario": {
+      "setup": "",
+      "run": "push(\"A\")\npush(\"B\")\npush(\"C\")\npush(\"D\")\npush(\"E\")\npush(\"F\")",
+      "checks": [
+       {
+        "expr": "top",
+        "value": "4"
+       },
+       {
+        "printed": "車尾箱已滿"
+       }
+      ]
+     },
+     "options": [
+      {
+       "text": "top == 4",
+       "correct": true
+      },
+      {
+       "text": "top == 5",
+       "fb": "`top` 最大係 4，等到 5 已經放過了嘢，`trunk[5]` 會出現運行錯誤。"
+      },
+      {
+       "text": "top > 5",
+       "fb": "`top` 係 4 時條件唔成立，會變成 5 再放入 `trunk[5]`，出現運行錯誤。",
+       "source": "新增"
+      },
+      {
+       "text": "top == -1",
+       "fb": "`top == -1` 係「空」嘅條件；咁寫，空車尾箱都會話已滿。",
+       "source": "新增"
+      }
+     ],
+     "hint": "容量 5，索引 0–4。`top` 係幾多就代表最頂嗰格已經用咗？",
+     "hintSource": "新增",
+     "explain": "`top == 4` 代表最頂的 `trunk[4]` 已用，再 push 就要顯示「車尾箱已滿」。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "type": "fill",
+     "fn": "pop",
+     "blank": "top == -1",
+     "prompt": "`pop` 內 `if ____:` 應填什麼？",
+     "scenario": {
+      "setup": "",
+      "run": "push(\"A\")\npush(\"B\")\npush(\"C\")\npush(\"D\")\npush(\"E\")\npop()\npop()\npop()\npop()\npop()\nr = pop()",
+      "checks": [
+       {
+        "expr": "r",
+        "value": "None"
+       },
+       {
+        "expr": "top",
+        "value": "-1"
+       },
+       {
+        "printed": "車尾箱冇嘢"
+       }
+      ]
+     },
+     "options": [
+      {
+       "text": "top == -1",
+       "correct": true
+      },
+      {
+       "text": "top == 0",
+       "fb": "`top` 係 0 即係仍然有一袋喇。"
+      },
+      {
+       "text": "trunk[top] == None",
+       "fb": "pop 過嘅嘢仍然留喺陣列，而且 Python 的 `trunk[-1]` 係最後一格，唔係錯誤。"
+      }
+     ],
+     "hint": "空堆疊時 `top` 係幾多？",
+     "hintSource": "新增",
+     "explain": "`top == -1` 代表堆疊是空的，要顯示「車尾箱冇嘢」並傳回 None。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q3",
+     "type": "predict",
+     "focus": "push",
+     "setup": "trunk = [\"紅\", \"藍\", \"橙\", \"黃\", \"紅\"]\ntop = 4",
+     "setupSource": "新增",
+     "prompt": "`top = 4` 時執行 `push(\"紫\")`，結果是？",
+     "run": "push(\"紫\")",
+     "checks": [
+      {
+       "expr": "top",
+       "value": "4"
+      },
+      {
+       "printed": "車尾箱已滿"
+      },
+      {
+       "expr": "trunk[4]",
+       "value": "紅"
+      }
+     ],
+     "options": [
+      {
+       "text": "顯示「車尾箱已滿」，`top` 仍是 4",
+       "correct": true
+      },
+      {
+       "text": "`top` 變成 5",
+       "fb": "`if top == 4` 成立，`top = top + 1` 嗰行根本唔會執行。",
+       "source": "新增"
+      },
+      {
+       "text": "紫取代頂部的袋",
+       "fb": "滿咗就唔會放，`trunk[4]` 仍然係紅袋。",
+       "source": "新增"
+      }
+     ],
+     "hint": "睇吓 `if top == 4:` 成唔成立。",
+     "hintSource": "新增",
+     "explain": "`top == 4` 成立，只會顯示「車尾箱已滿」，`top` 及陣列都不變。",
+     "explainSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "1-5",
+   "title": "砌好個程式",
+   "kind": "排列",
+   "focus": "push",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "我部電腦個 push 程式散晒，幫我砌返好佢。"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "任務 1",
+     "type": "order",
+     "fn": "push",
+     "prompt": "把打亂的行排成 `push`。每行已帶縮排（· 代表空格），你只需決定次序。",
+     "specials": [
+      {
+       "id": "先放後郁 top",
+       "first": "        trunk[top] = x",
+       "then": "        top = top + 1",
+       "fb": "新袋壓扁咗頂部嗰袋！要先郁 `top`，再放嘢。",
+       "fbSource": "新增",
+       "demo": {
+        "setup": "trunk = [\"紅\", \"藍\", None, None, None]\ntop = 1",
+        "run": "push(\"橙\")"
+       },
+       "expectDemo": {
+        "expr": "trunk[1]",
+        "value": "橙"
+       }
+      }
+     ],
+     "hint": "push 先檢查滿唔滿；未滿就先郁 top，再放嘢。",
+     "hintSource": "新增"
+    },
+    {
+     "id": "任務 2",
+     "type": "order",
+     "fn": "pop",
+     "prompt": "同樣排列 `pop`（共 9 行）。",
+     "specials": [
+      {
+       "id": "先減 top 再取出",
+       "first": "        top = top - 1",
+       "then": "        x = trunk[top]",
+       "fb": "拎錯袋！要先取出 `trunk[top]`，再減 `top`。",
+       "fbSource": "新增",
+       "demo": {
+        "setup": "trunk = [\"紅\", \"藍\", \"橙\", None, None]\ntop = 2",
+        "run": "pop()"
+       },
+       "expectDemo": {
+        "expr": "result",
+        "value": "藍"
+       }
+      }
+     ],
+     "hint": "pop 先檢查空唔空；唔空就先取出資料，再郁 top，最後傳回。",
+     "hintSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "1-6",
+   "title": "GPS 返回鍵",
+   "kind": "捉錯 + 大頭目",
+   "focus": "pop",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "你又轉錯屋喇！按 GPS 個『返回』——其實佢都係一個堆疊嚟。"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "捉錯",
+     "type": "bug",
+     "fn": "pop",
+     "prompt": "以下 `pop` 有一行錯。點出錯的一行。",
+     "code": "def pop():\n    global top\n    if top == -1:\n        print(\"車尾箱冇嘢\")\n        return None\n    else:\n        top = top - 1\n        x = trunk[top]\n        return x",
+     "bugLines": [
+      7,
+      8
+     ],
+     "lineFbDefault": "呢行冇問題。睇吓 else 入面嗰幾行嘅次序。",
+     "lineFbSource": "新增",
+     "demo": {
+      "setup": "trunk = [\"中環\", \"金鐘\", \"灣仔\", None, None]\ntop = 2",
+      "run": "pop()"
+     },
+     "expectDemo": {
+      "expr": "result",
+      "value": "金鐘"
+     },
+     "fixes": [
+      {
+       "text": "兩行對調（先 `x = trunk[top]`，再 `top = top - 1`）",
+       "correct": true
+      },
+      {
+       "text": "第 7 行改成 `top = top + 1`",
+       "fb": "咁每次 pop，`top` 反而越嚟越大，仲會拎錯格。",
+       "source": "新增"
+      },
+      {
+       "text": "刪除第 7 行",
+       "fb": "咁 `top` 永遠唔會減，pop 完嗰項仲當係喺堆疊入面。",
+       "source": "新增"
+      }
+     ],
+     "hint": "按「試行」：佢由 `top = 2` 開始 pop，傳回嘅係邊個站？",
+     "hintSource": "新增",
+     "explain": "要先取出 `trunk[top]`，再把 `top` 減 1；次序倒轉就會取錯項目。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q1",
+     "type": "predict",
+     "setup": "push(\"中環\")\npush(\"金鐘\")\npush(\"灣仔\")\npush(\"銅鑼灣\")",
+     "dialogue": [
+      {
+       "who": "發哥",
+       "text": "大頭目！依次 push 咗中環、金鐘、灣仔、銅鑼灣，目前位置係 trunk[top]。"
+      }
+     ],
+     "prompt": "按「返回」兩次（`pop()` 兩次）後，目前位置？",
+     "run": "pop()\npop()",
+     "check": "trunk[top]",
+     "options": [
+      {
+       "text": "金鐘",
+       "correct": true
+      },
+      {
+       "text": "灣仔",
+       "fb": "返回兩次：第一次 pop 走銅鑼灣，第二次 pop 走灣仔。",
+       "source": "新增"
+      },
+      {
+       "text": "中環",
+       "fb": "只係返回兩次，未返到中環。",
+       "source": "新增"
+      }
+     ],
+     "hint": "每 pop 一次，`top` 減 1。由 3 開始。",
+     "hintSource": "新增",
+     "explain": "兩次 pop 後 `top = 1`，`trunk[1]` 是金鐘。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "type": "predict",
+     "prompt": "再 `push(\"北角\")`，`trunk` 是？",
+     "run": "push(\"北角\")",
+     "focus": "push",
+     "check": "trunk",
+     "options": [
+      {
+       "text": "[中環, 金鐘, 北角, 銅鑼灣, None]",
+       "correct": true
+      },
+      {
+       "text": "[中環, 金鐘, 北角, None, None]",
+       "fb": "pop 唔會刪除資料，銅鑼灣仍然留喺 `trunk[3]`。",
+       "source": "新增"
+      },
+      {
+       "text": "[中環, 金鐘, 灣仔, 銅鑼灣, 北角]",
+       "fb": "北角放喺 `trunk[top]`，而 `top` 由 1 變 2，所以會蓋住 `trunk[2]` 嘅灣仔。",
+       "source": "新增"
+      }
+     ],
+     "hint": "push 先將 `top` 加 1，再放入 `trunk[top]`。",
+     "hintSource": "新增",
+     "explain": "北角放入 `trunk[2]`，蓋住了舊資料灣仔；銅鑼灣仍在 `trunk[3]`，但不屬於堆疊。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q3",
+     "type": "predict",
+     "prompt": "堆疊現在有多少個項目？",
+     "check": "top + 1",
+     "options": [
+      {
+       "text": "3",
+       "correct": true
+      },
+      {
+       "text": "4",
+       "fb": "銅鑼灣喺陣列入面，但 top 係 2，佢唔算係堆疊嘅一部分。"
+      }
+     ],
+     "hint": "堆疊項目數 = `top + 1`。",
+     "hintSource": "新增",
+     "explain": "`top = 2`，堆疊內有 `trunk[0]` 至 `trunk[2]` 共 3 個項目。",
+     "explainSource": "新增"
+    }
+   ]
+  }
+ ],
+ "quiz": {
+  "title": "收工小測",
+  "focus": "pop",
+  "setup": "",
+  "dialogue": [
+   {
+    "who": "發哥",
+    "text": "收工前考考你！三題，冇提示，每題得一次機會。",
+    "source": "新增"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "小測 1",
+    "type": "predict",
+    "prompt": "由空堆疊開始執行：`push(\"A\")`、`push(\"B\")`、`pop()`、`push(\"C\")`、`push(\"D\")`、`pop()`、`pop()`。三次 pop 的輸出次序？",
+    "run": "push(\"A\")\npush(\"B\")\na = pop()\npush(\"C\")\npush(\"D\")\nb = pop()\nc = pop()",
+    "check": "[a, b, c]",
+    "expect": "[B, D, C]",
+    "options": [
+     {
+      "text": "B、D、C",
+      "correct": true
+     },
+     {
+      "text": "B、C、D",
+      "fb": "第二次 pop 時，頂部係最後放入嘅 D。",
+      "source": "新增"
+     },
+     {
+      "text": "D、C、B",
+      "fb": "第一次 pop 時，C 同 D 仲未放入。",
+      "source": "新增"
+     },
+     {
+      "text": "A、C、D",
+      "fb": "pop 拎頂部，唔係最底。",
+      "source": "新增"
+     }
+    ],
+    "explain": "第一次 pop 取出 B；之後 push C、D，再 pop 兩次取出 D、C。",
+    "explainSource": "新增"
+   },
+   {
+    "id": "小測 2",
+    "type": "predict",
+    "prompt": "同上，最後 `top` 是多少？",
+    "check": "top",
+    "options": [
+     {
+      "text": "0",
+      "correct": true
+     },
+     {
+      "text": "1",
+      "fb": "push 咗四次、pop 咗三次，得返 1 個項目，即 `top` 係 0。",
+      "source": "新增"
+     },
+     {
+      "text": "2",
+      "fb": "`trunk[2]` 嘅 D 已經 pop 走咗，只係仲留喺陣列。",
+      "source": "新增"
+     },
+     {
+      "text": "-1",
+      "fb": "仲有 A 喺堆疊入面，未空。",
+      "source": "新增"
+     }
+    ],
+    "explain": "`trunk = [A, C, D, None, None]`，只有 A 在堆疊內，所以 `top = 0`。"
+   },
+   {
+    "id": "小測 3",
+    "type": "predict",
+    "prompt": "以下哪一個條件代表堆疊是空的？",
+    "setup": "push(\"A\")\npop()",
+    "setupSource": "新增",
+    "checks": [
+     {
+      "expr": "top == -1",
+      "value": "True"
+     },
+     {
+      "expr": "top == 0",
+      "value": "False"
+     },
+     {
+      "expr": "trunk[0] == None",
+      "value": "False"
+     },
+     {
+      "expr": "top == 4",
+      "value": "False"
+     }
+    ],
+    "options": [
+     {
+      "text": "top == -1",
+      "correct": true
+     },
+     {
+      "text": "top == 0",
+      "fb": "`top` 係 0 代表仲有一個項目。",
+      "source": "新增"
+     },
+     {
+      "text": "trunk[0] == None",
+      "fb": "pop 之後資料仲留喺陣列，所以 `trunk[0]` 未必係 None。",
+      "source": "新增"
+     },
+     {
+      "text": "top == 4",
+      "fb": "呢個係「已滿」嘅條件。",
+      "source": "新增"
+     }
+    ],
+    "explain": "`top == -1` 代表堆疊沒有項目。",
+    "explainSource": "新增"
+   }
+  ]
+ }
+}

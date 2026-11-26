@@ -1,0 +1,86 @@
+/* base.css — 《的士佬日記》色彩、字型、按鈕
+ * 版面：手機直向單欄（狀態列 → 對白框 → 主場景 → 程式區 → 操作面板），參考像素遊戲畫面。
+ * 單一深色外觀（夜更），所有顏色明確設定。文字一律用一般中文字型，不用像素字型。 */
+:root {
+  --night: #11131f;          /* 背景：夜空 */
+  --panel: #1d2135;          /* 面板 */
+  --panel-2: #272c46;
+  --edge: #07080d;           /* 像素外框 */
+  --hi: #4b5380;             /* 外框高光 */
+  --text: #eef0fb;
+  --dim: #a5abcb;
+  --cream: #f6ecd2;          /* 對白氣泡 */
+  --ink: #1c1a17;
+  --taxi: #d0182f;           /* 市區的士紅 */
+  --taxi-dark: #7d0d1b;
+  --gold: #f2c14e;           /* 營收、指標箭咀 */
+  --led: #ff4b3a;            /* 咪錶數字 */
+  --good: #49d37f;
+  --good-bg: #d9f5e1;
+  --bad: #ff6a5c;
+  --bad-bg: #ffd9d3;
+  --hint-bg: #fff1c4;
+  --code-bg: #0d1020;
+  --code-hl: #34446e;
+  --font: "PingFang HK", "PingFang TC", -apple-system, BlinkMacSystemFont, "Noto Sans HK", "Microsoft JhengHei", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "PingFang HK", monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--night);
+  background-image: radial-gradient(ellipse at 50% -10%, #23284a 0%, var(--night) 60%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+body.locked { overflow: hidden; }
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; touch-action: manipulation; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+code { font-family: var(--mono); font-size: 0.92em; padding: 0 4px; border-radius: 3px; background: rgba(0, 0, 0, 0.12); }
+.px-img { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+.small { font-size: 13px; color: var(--dim); }
+
+.app {
+  max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column; gap: 4px;
+  padding-top: calc(4px + env(safe-area-inset-top, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+}
+.app > * { flex-shrink: 0; }
+
+/* 像素外框：粗黑邊 + 內高光 + 切角 */
+.px-frame {
+  background: var(--panel);
+  border: 3px solid var(--edge);
+  box-shadow: inset 0 0 0 2px var(--hi), inset 0 0 0 4px var(--edge);
+  clip-path: polygon(0 6px, 6px 6px, 6px 0, calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px));
+}
+
+/* 像素按鈕 */
+.pxbtn {
+  min-height: 46px; padding: 0 14px; border: 3px solid var(--edge);
+  background: var(--panel-2); color: var(--text); font-size: 16px; font-weight: 700;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+.pxbtn:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35); }
+.pxbtn:disabled { opacity: 0.45; cursor: default; transform: none; }
+.pxbtn.primary { background: var(--taxi); color: #fff; }
+.pxbtn.hint { background: var(--gold); color: var(--ink); font-size: 14px; min-height: 44px; padding: 0 10px; white-space: nowrap; }
+.pxbtn.ghost { background: transparent; border-color: var(--hi); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

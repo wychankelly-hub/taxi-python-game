@@ -1,0 +1,898 @@
+{
+ "chapter": 3,
+ "title": "的士站改革",
+ "topic": "環形隊列 (Circular Queue)",
+ "sim": "circularQueue",
+ "view": {
+  "type": "circular",
+  "arrays": [
+   "bay"
+  ],
+  "pointers": [
+   "head",
+   "tail",
+   "count"
+  ],
+  "bg": "bg_ch3_stand_dusk",
+  "pickHint": "點車位，或者下面的變量"
+ },
+ "intro": "發哥提議：「做咩要全部車郁？郁個『下一架』牌咪得囉！」",
+ "review": [
+  "環形隊列 (Circular Queue)：資料留在原位，只移動 `head`（隊頭）及 `tail`（下一個空位）。",
+  "指標到達最後一格後回到第一格：`tail = (tail + 1) % 5`。",
+  "模除 (%)：求餘數，例如 `5 % 5 = 0`、`3 % 5 = 3`。",
+  "`count == 0` 代表空，`count == 5` 代表已滿；單靠 `head == tail` 分不出是空還是滿。",
+  "環形只是想像出來的；記憶體內仍然是一行普通陣列。"
+ ],
+ "levels": [
+  {
+   "id": "3-1",
+   "title": "發哥改革",
+   "kind": "概念",
+   "focus": "deq",
+   "setup": "bay = [\"A\", \"B\", \"C\", None, None]\nhead = 0\ntail = 3\ncount = 3",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "上次郁車郁到我腰都痛！今次架架車企定唔郁，郁個牌就得。"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "用環形隊列，`deq()` 時要移動多少架車？",
+     "run": "deq()",
+     "checkWrites": "bay",
+     "expect": "0",
+     "options": [
+      {
+       "text": "0",
+       "correct": true
+      },
+      {
+       "text": "4",
+       "fb": "架車冇郁，郁嘅係 `head`。",
+       "source": "新增"
+      },
+      {
+       "text": "視乎有多少架車",
+       "fb": "環形隊列無論幾多架車都唔使郁車。",
+       "source": "新增"
+      }
+     ],
+     "hint": "deq 有冇寫入 `bay`？",
+     "hintSource": "新增",
+     "explain": "deq 只改 `head` 及 `count`，沒有寫入 `bay`。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "以下哪一項正確？",
+     "concept": true,
+     "options": [
+      {
+       "text": "環形隊列在記憶體內仍然是一行普通陣列",
+       "correct": true
+      },
+      {
+       "text": "電腦真的把記憶體排成一個圓形",
+       "fb": "個圈只係方便我哋諗，記憶體入面都係 0 至 4 一行。"
+      }
+     ],
+     "explain": "環形只是想像出來的；記憶體內仍然是一行普通陣列。",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "`(4 + 1) % 5` 等於多少？",
+     "check": "(4 + 1) % 5",
+     "options": [
+      {
+       "text": "0",
+       "correct": true
+      },
+      {
+       "text": "5",
+       "fb": "`%` 係求餘數：5 除 5 餘 0。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "5 除 5 餘 0，唔係 1。",
+       "source": "新增"
+      }
+     ],
+     "hint": "5 除以 5 餘幾多？",
+     "hintSource": "新增",
+     "explain": "`5 % 5 = 0`，所以指標由 4 回到 0。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "3-2",
+   "title": "新制度開工",
+   "kind": "操作",
+   "focus": "enq",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "新制度：泊車、郁「空位」牌、count 加一，三步！",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "操作",
+     "type": "operate",
+     "prompt": "依次 enq(\"阿強\")、enq(\"阿明\")、enq(\"肥仔\")。每次：點 bay[tail] 放車 → 按 tail 的 + → 按 count 的 +。",
+     "say": "先泊車，再郁 tail，最後 count + 1。",
+     "saySource": "新增",
+     "ops": [
+      {
+       "run": "enq(\"阿強\")",
+       "item": "阿強"
+      },
+      {
+       "run": "enq(\"阿明\")",
+       "item": "阿明"
+      },
+      {
+       "run": "enq(\"肥仔\")",
+       "item": "肥仔"
+      }
+     ],
+     "buttons": [
+      {
+       "id": "put",
+       "zh": "泊車",
+       "en": "[bay[tail] = x]",
+       "color": "orange",
+       "icon": "item",
+       "code": "bay[tail] = x"
+      },
+      {
+       "id": "tail",
+       "zh": "郁空位牌",
+       "en": "[tail = (tail + 1) % 5]",
+       "color": "blue",
+       "icon": "arrow",
+       "code": "tail = (tail + 1) % 5"
+      },
+      {
+       "id": "cnt",
+       "zh": "架數 +1",
+       "en": "[count = count + 1]",
+       "color": "yellow",
+       "icon": "glyph:＃",
+       "code": "count = count + 1"
+      },
+      {
+       "id": "auto",
+       "zh": "入站",
+       "en": "[Enqueue]",
+       "color": "green",
+       "icon": "sprite:taxi_small",
+       "locked": "本關要逐步做"
+      }
+     ],
+     "order": [
+      "put",
+      "tail",
+      "cnt"
+     ],
+     "rules": {
+      "early": {
+       "tail": "咁樣第一格會空咗，車泊錯位喇！",
+       "cnt": "先泊車、再郁 tail，最後先 count + 1。"
+      },
+      "earlySource": "cnt 的回饋為新增",
+      "dup": "每架車，每一步只做一次。",
+      "dupSource": "新增"
+     },
+     "hint": "車泊喺 `bay[tail]`；泊好之後 `tail` 先前進。",
+     "hintSource": "新增",
+     "expectFinal": {
+      "bay": "[阿強, 阿明, 肥仔, None, None]",
+      "head": "0",
+      "tail": "3",
+      "count": "3"
+     },
+     "doneSay": "新制度開工！三架車泊好晒。",
+     "explain": "`bay = [阿強, 阿明, 肥仔, None, None]`，`head = 0`、`tail = 3`、`count = 3`。",
+     "explainSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "3-3",
+   "title": "車走，牌郁",
+   "kind": "預測",
+   "focus": "deq",
+   "setup": "bay = [\"阿強\", \"阿明\", \"肥仔\", None, None]\nhead = 0\ntail = 3\ncount = 3",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "兩架車載客走咗，睇吓個牌點郁。",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "執行 `deq()` 兩次，輸出？",
+     "run": "a = deq()\nb = deq()",
+     "check": "[a, b]",
+     "expect": "[阿強, 阿明]",
+     "options": [
+      {
+       "text": "阿強、阿明",
+       "correct": true
+      },
+      {
+       "text": "肥仔、阿明",
+       "fb": "肥仔最遲到，排最尾。",
+       "source": "新增"
+      }
+     ],
+     "hint": "由 `head` 開始。",
+     "hintSource": "新增",
+     "explain": "先進先出：阿強、阿明。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "執行後 `head`、`tail`、`count`？",
+     "checks": [
+      {
+       "expr": "[head, tail, count]",
+       "value": "[2, 3, 1]"
+      }
+     ],
+     "options": [
+      {
+       "text": "2、3、1",
+       "correct": true
+      },
+      {
+       "text": "0、1、1",
+       "fb": "架車冇郁，郁嘅係 head。"
+      },
+      {
+       "text": "2、1、1",
+       "fb": "deq 唔會郁 `tail`，`tail` 仍然指住下一個空位 3。",
+       "source": "新增"
+      }
+     ],
+     "hint": "deq 只郁 `head` 及 `count`。",
+     "hintSource": "新增",
+     "explain": "`head` 前進兩格到 2；`tail` 不變；`count` 剩 1。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "`bay` 是否有改變？",
+     "checks": [
+      {
+       "expr": "bay",
+       "value": "[阿強, 阿明, 肥仔, None, None]"
+      }
+     ],
+     "options": [
+      {
+       "text": "沒有，`[阿強, 阿明, 肥仔, None, None]`",
+       "correct": true
+      },
+      {
+       "text": "變成 `[肥仔, None, None, None, None]`",
+       "fb": "環形隊列唔會移動資料，只郁 `head`。",
+       "source": "新增"
+      }
+     ],
+     "explain": "阿強及阿明仍在陣列內（灰色），但已不在隊列內。",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "3-4",
+   "title": "兜返個圈",
+   "kind": "填空 + 排列",
+   "focus": "enq",
+   "setup": "",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "個牌去到車位 4，下一步點郁？",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "type": "fill",
+     "fn": "enq",
+     "line": "tail = (tail + 1) % 5",
+     "blank": "(tail + 1) % 5",
+     "prompt": "`tail = ____` 應填什麼？",
+     "scenario": {
+      "setup": "",
+      "run": "enq(\"A\")\nenq(\"B\")\nenq(\"C\")\nenq(\"D\")\ndeq()\ndeq()\nenq(\"E\")\nenq(\"F\")\nenq(\"G\")",
+      "checks": [
+       {
+        "expr": "bay",
+        "value": "[F, G, C, D, E]"
+       },
+       {
+        "expr": "tail",
+        "value": "2"
+       }
+      ]
+     },
+     "options": [
+      {
+       "text": "(tail + 1) % 5",
+       "correct": true
+      },
+      {
+       "text": "tail + 1",
+       "fb": "去到 5 就爆，冇車位 5 㗎！"
+      },
+      {
+       "text": "(tail % 5) + 1",
+       "fb": "`tail = 4` 時會變 5，一樣超出範圍。"
+      },
+      {
+       "text": "(tail + 1) % 4",
+       "fb": "咁樣車位 4 永遠用唔到。"
+      }
+     ],
+     "hint": "`tail` 由 4 要變返 0。",
+     "hintSource": "新增",
+     "explain": "`(tail + 1) % 5` 令 `tail` 由 4 回到 0。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "Q2",
+     "setup": "bay = [\"A\", \"B\", \"C\", \"D\", None]\nhead = 0\ntail = 4\ncount = 4",
+     "prompt": "`tail = 4` 時執行一次 `enq`，之後 `tail` 是？",
+     "run": "enq(\"E\")",
+     "check": "tail",
+     "options": [
+      {
+       "text": "0",
+       "correct": true
+      },
+      {
+       "text": "5",
+       "fb": "冇車位 5，`% 5` 令佢返去 0。",
+       "source": "新增"
+      },
+      {
+       "text": "4",
+       "fb": "enq 之後 `tail` 一定會前進。",
+       "source": "新增"
+      }
+     ],
+     "hint": "`(4 + 1) % 5`",
+     "hintSource": "新增",
+     "explain": "`(4 + 1) % 5 = 0`，兜返個圈。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "排列",
+     "type": "order",
+     "fn": "deq",
+     "prompt": "把打亂的 `deq` 各行排好（· 代表空格）。",
+     "specials": [
+      {
+       "id": "先郁 head 再取車",
+       "first": "    head = (head + 1) % 5",
+       "then": "    x = bay[head]",
+       "fb": "叫錯車！要先記低 `bay[head]`，再郁 head。",
+       "fbSource": "新增",
+       "demo": {
+        "setup": "bay = [\"阿強\", \"阿明\", None, None, None]\nhead = 0\ntail = 2\ncount = 2",
+        "run": "deq()"
+       },
+       "expectDemo": {
+        "expr": "result",
+        "value": "阿明"
+       }
+      }
+     ],
+     "hint": "先檢查空唔空，記低隊頭，再郁 head，count 減 1，最後傳回。",
+     "hintSource": "新增"
+    }
+   ]
+  },
+  {
+   "id": "3-5",
+   "title": "繁忙時間",
+   "kind": "預測",
+   "focus": "enq",
+   "setup": "bay = [\"阿強\", \"阿明\", \"肥仔\", None, None]\nhead = 2\ntail = 3\ncount = 1",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "放工時間，啲車一架接一架入嚟，睇住個牌兜圈呀！"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "依次 `enq(\"阿May\")`、`enq(\"豪哥\")`、`enq(\"阿輝\")`。阿輝泊在哪個車位？",
+     "run": "enq(\"阿May\")\nenq(\"豪哥\")\nenq(\"阿輝\")",
+     "checks": [
+      {
+       "expr": "bay[0]",
+       "value": "阿輝"
+      }
+     ],
+     "options": [
+      {
+       "text": "0",
+       "correct": true
+      },
+      {
+       "text": "5",
+       "fb": "冇車位 5！`tail` 由 4 再前進就返去 0。",
+       "source": "新增"
+      },
+      {
+       "text": "1",
+       "fb": "阿May 泊 3、豪哥泊 4、阿輝泊 0。",
+       "source": "新增"
+      }
+     ],
+     "hint": "開始時 `tail = 3`。",
+     "hintSource": "新增",
+     "explain": "阿May 泊車位 3，豪哥泊 4，`tail` 兜返個圈，阿輝泊 0。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "三次 `enq` 後 `head`、`tail`、`count`？",
+     "checks": [
+      {
+       "expr": "[head, tail, count]",
+       "value": "[2, 1, 4]"
+      }
+     ],
+     "options": [
+      {
+       "text": "2、1、4",
+       "correct": true
+      },
+      {
+       "text": "2、6、4",
+       "fb": "`tail` 用 `% 5`，唔會去到 6。",
+       "source": "新增"
+      },
+      {
+       "text": "0、1、4",
+       "fb": "enq 唔會郁 `head`。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`head` 不變；`tail` 由 3 經 4、0 到 1；`count` 由 1 變 4。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "`bay` 是？",
+     "check": "bay",
+     "options": [
+      {
+       "text": "[阿輝, 阿明, 肥仔, 阿May, 豪哥]",
+       "correct": true
+      },
+      {
+       "text": "[阿May, 豪哥, 阿輝, None, None]",
+       "fb": "環形隊列唔會移動車，新車泊喺 `tail`。",
+       "source": "新增"
+      },
+      {
+       "text": "[阿強, 阿明, 肥仔, 阿May, 豪哥]",
+       "fb": "阿輝泊喺 `bay[0]`，蓋住咗舊資料阿強。",
+       "source": "新增"
+      }
+     ],
+     "explain": "阿輝泊在車位 0，蓋住了舊資料阿強。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q4",
+     "prompt": "下一架載客的是誰？",
+     "check": "bay[head]",
+     "options": [
+      {
+       "text": "肥仔",
+       "correct": true
+      },
+      {
+       "text": "阿輝",
+       "fb": "阿輝最遲到，排最尾。",
+       "source": "新增"
+      },
+      {
+       "text": "阿明",
+       "fb": "阿明早就走咗，佢只係仲留喺陣列。"
+      }
+     ],
+     "hint": "睇 `head`。",
+     "hintSource": "新增",
+     "explain": "`head = 2`，`bay[2]` 是肥仔。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q5",
+     "prompt": "隊列由頭至尾的次序？",
+     "verify": "a = deq()\nb = deq()\nc = deq()\nd = deq()",
+     "check": "[a, b, c, d]",
+     "expect": "[肥仔, 阿May, 豪哥, 阿輝]",
+     "options": [
+      {
+       "text": "肥仔、阿May、豪哥、阿輝",
+       "correct": true
+      },
+      {
+       "text": "阿輝、阿明、肥仔、阿May",
+       "fb": "唔好由 `bay[0]` 讀起，要由 `head` 開始。",
+       "source": "新增"
+      },
+      {
+       "text": "阿May、豪哥、阿輝、肥仔",
+       "fb": "肥仔最早到，排第一。",
+       "source": "新增"
+      }
+     ],
+     "explain": "由 `head`（車位 2）開始數 `count` 架：肥仔、阿May、豪哥、阿輝。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  },
+  {
+   "id": "3-6",
+   "title": "係滿定係空？",
+   "kind": "大頭目 + 捉錯",
+   "focus": "enq",
+   "setup": "bay = [\"阿輝\", \"阿明\", \"肥仔\", \"阿May\", \"豪哥\"]\nhead = 2\ntail = 1\ncount = 4",
+   "dialogue": [
+    {
+     "who": "發哥",
+     "text": "再嚟一架阿傑！睇清楚 head 同 tail。",
+     "source": "新增"
+    }
+   ],
+   "tasks": [
+    {
+     "id": "Q1",
+     "prompt": "再 `enq(\"阿傑\")`。阿傑泊在哪個車位？",
+     "run": "enq(\"阿傑\")",
+     "checks": [
+      {
+       "expr": "bay[1]",
+       "value": "阿傑"
+      },
+      {
+       "expr": "[head, tail, count]",
+       "value": "[2, 2, 5]"
+      }
+     ],
+     "options": [
+      {
+       "text": "1",
+       "correct": true
+      },
+      {
+       "text": "0",
+       "fb": "`bay[0]` 已經有阿輝，而家 `tail` 係 1。",
+       "source": "新增"
+      },
+      {
+       "text": "5",
+       "fb": "冇車位 5。",
+       "source": "新增"
+      }
+     ],
+     "explain": "阿傑泊在車位 1。之後 `head = 2`、`tail = 2`、`count = 5`。",
+     "type": "predict"
+    },
+    {
+     "id": "Q2",
+     "prompt": "現在 `head == tail`，的士站是？",
+     "checks": [
+      {
+       "expr": "count",
+       "value": "5"
+      }
+     ],
+     "options": [
+      {
+       "text": "已滿",
+       "correct": true
+      },
+      {
+       "text": "空",
+       "fb": "`count` 係 5。",
+       "source": "新增"
+      },
+      {
+       "text": "分不到",
+       "fb": "睇 `count` 就分到。"
+      }
+     ],
+     "explain": "`count == 5`，所以已滿。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q3",
+     "prompt": "再 `enq(\"阿文\")`，結果？",
+     "run": "enq(\"阿文\")",
+     "checks": [
+      {
+       "printed": "的士站已滿"
+      },
+      {
+       "expr": "[head, tail, count]",
+       "value": "[2, 2, 5]"
+      }
+     ],
+     "options": [
+      {
+       "text": "顯示「的士站已滿」，各指標不變",
+       "correct": true
+      },
+      {
+       "text": "阿文泊在車位 2，蓋住肥仔",
+       "fb": "enq 會先檢查 `count == 5`。",
+       "source": "新增"
+      },
+      {
+       "text": "`tail` 變成 3",
+       "fb": "已滿就唔會泊車，`tail` 唔會郁。",
+       "source": "新增"
+      }
+     ],
+     "explain": "`count == 5` 成立，只顯示「的士站已滿」。",
+     "explainSource": "新增",
+     "type": "predict"
+    },
+    {
+     "id": "Q4",
+     "prompt": "再連續 `deq()` 五次，輸出次序？",
+     "run": "a = deq()\nb = deq()\nc = deq()\nd = deq()\ne = deq()",
+     "check": "[a, b, c, d, e]",
+     "expect": "[肥仔, 阿May, 豪哥, 阿輝, 阿傑]",
+     "options": [
+      {
+       "text": "肥仔、阿May、豪哥、阿輝、阿傑",
+       "correct": true
+      },
+      {
+       "text": "阿輝、阿傑、肥仔、阿May、豪哥",
+       "fb": "要由 `head`（車位 2）開始。",
+       "source": "新增"
+      },
+      {
+       "text": "阿傑、阿輝、豪哥、阿May、肥仔",
+       "fb": "隊列係先進先出。",
+       "source": "新增"
+      }
+     ],
+     "explain": "之後 `head = 2`、`tail = 2`、`count = 0`。",
+     "type": "predict"
+    },
+    {
+     "id": "Q5",
+     "prompt": "又是 `head == tail`，今次是？",
+     "checks": [
+      {
+       "expr": "count",
+       "value": "0"
+      }
+     ],
+     "options": [
+      {
+       "text": "空",
+       "correct": true
+      },
+      {
+       "text": "已滿",
+       "fb": "`count` 係 0。",
+       "source": "新增"
+      },
+      {
+       "text": "分不到",
+       "fb": "睇 `count` 就分到。",
+       "source": "新增"
+      }
+     ],
+     "explain": "發哥：「頭先都係 head 等於 tail，所以一定要有 `count`！」",
+     "type": "predict"
+    },
+    {
+     "id": "捉錯",
+     "type": "bug",
+     "fn": "deq",
+     "prompt": "以下 `deq` 有一行錯。點出錯的一行。",
+     "code": "def deq():\n    global head, count\n    if count == 0:\n        print(\"的士站冇車\")\n        return None\n    x = bay[head]\n    head = head + 1\n    count = count - 1\n    return x",
+     "bugLines": [
+      7
+     ],
+     "lineFbDefault": "呢行冇問題。睇吓郁 head 嗰行。",
+     "lineFbSource": "新增",
+     "demo": {
+      "setup": "head = 3\ntail = 3",
+      "run": "enq(\"A\")\nenq(\"B\")\nenq(\"C\")\ndeq()\ndeq()\ndeq()"
+     },
+     "expectDemo": {
+      "error": "IndexError"
+     },
+     "fixes": [
+      {
+       "text": "改成 `head = (head + 1) % 5`",
+       "correct": true
+      },
+      {
+       "text": "改成 `head = head - 1`",
+       "fb": "隊頭係向前行，唔係向後退。",
+       "source": "新增"
+      },
+      {
+       "text": "改成 `head = 0`",
+       "fb": "咁每次都叫車位 0 嘅車。",
+       "source": "新增"
+      }
+     ],
+     "hint": "按「試行」：`head` 去到 4 之後會點？",
+     "hintSource": "新增",
+     "explain": "要用 `% 5` 令 `head` 由 4 回到 0。",
+     "explainSource": "新增"
+    },
+    {
+     "id": "追問",
+     "prompt": "這個錯誤何時才出現？",
+     "concept": true,
+     "options": [
+      {
+       "text": "`head` 由 4 再加 1 時",
+       "correct": true
+      },
+      {
+       "text": "第一次 `deq` 時",
+       "fb": "頭幾次 `head` 仲未去到 4，唔會出事。"
+      }
+     ],
+     "explain": "`head` 變成 5 之後，下一次 `deq` 讀 `bay[5]` 就出現運行錯誤 (IndexError)。",
+     "explainSource": "新增",
+     "type": "predict"
+    }
+   ]
+  }
+ ],
+ "quiz": {
+  "title": "收工小測",
+  "focus": "deq",
+  "setup": "bay = [\"E\", None, None, \"C\", \"D\"]\nhead = 3\ntail = 1\ncount = 3",
+  "dialogue": [
+   {
+    "who": "發哥",
+    "text": "收工前考考你！三題，冇提示，每題得一次機會。",
+    "source": "新增"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "小測 1",
+    "prompt": "`bay = [E, None, None, C, D]`，`head = 3`、`tail = 1`、`count = 3`。`deq()` 傳回什麼？之後 `head` 是？",
+    "run": "r = deq()",
+    "checks": [
+     {
+      "expr": "r",
+      "value": "C"
+     },
+     {
+      "expr": "head",
+      "value": "4"
+     }
+    ],
+    "options": [
+     {
+      "text": "C；4",
+      "correct": true
+     },
+     {
+      "text": "E；0",
+      "fb": "`head` 係 3，隊頭係 `bay[3]`。",
+      "source": "新增"
+     },
+     {
+      "text": "D；4",
+      "fb": "`bay[3]` 係 C。",
+      "source": "新增"
+     },
+     {
+      "text": "C；0",
+      "fb": "`(3 + 1) % 5` 係 4。",
+      "source": "新增"
+     }
+    ],
+    "explain": "隊頭是 `bay[3]` 的 C；`head` 變成 4。",
+    "explainSource": "新增",
+    "type": "predict"
+   },
+   {
+    "id": "小測 2",
+    "prompt": "接著 `enq(\"F\")`，F 放在哪個車位？之後 `tail` 是？",
+    "run": "enq(\"F\")",
+    "checks": [
+     {
+      "expr": "bay[1]",
+      "value": "F"
+     },
+     {
+      "expr": "tail",
+      "value": "2"
+     }
+    ],
+    "options": [
+     {
+      "text": "1；2",
+      "correct": true
+     },
+     {
+      "text": "5；6",
+      "fb": "`% 5` 令車位只會係 0–4。",
+      "source": "新增"
+     },
+     {
+      "text": "2；3",
+      "fb": "`tail` 原本係 1，F 泊 `bay[1]`。",
+      "source": "新增"
+     }
+    ],
+    "explain": "F 泊在 `bay[tail]` 即車位 1，`tail` 變成 2。",
+    "explainSource": "新增",
+    "type": "predict"
+   },
+   {
+    "id": "小測 3",
+    "prompt": "兩步完成後 `count` 是？",
+    "check": "count",
+    "options": [
+     {
+      "text": "3",
+      "correct": true
+     },
+     {
+      "text": "4",
+      "fb": "走咗一架、入咗一架。",
+      "source": "新增"
+     },
+     {
+      "text": "2",
+      "fb": "走咗一架之後又入咗一架。",
+      "source": "新增"
+     }
+    ],
+    "explain": "3 − 1 + 1 = 3。",
+    "explainSource": "新增",
+    "type": "predict"
+   }
+  ]
+ }
+}
